@@ -22,17 +22,18 @@ Class {
 { #category : 'adding' }
 MicroUMLClassNode >> addAttribute: aSymbolOrNil [
 
-	^ members add: (self memberNodeClass new
+	^ members add: (self attributeNodeClass new
 			   name: aSymbolOrNil;
-			   isMethod: false)
+			   classNode: self)
 ]
 
 { #category : 'adding' }
 MicroUMLClassNode >> addMethod: aSymbolOrNil [
 
-	^ members add: (self memberNodeClass new
+	^ members add: (self methodNodeClass new
 			   name: aSymbolOrNil;
-			   isMethod: true)
+			   classNode: self;
+			   yourself)
 ]
 
 { #category : 'adding' }
@@ -62,6 +63,12 @@ MicroUMLClassNode >> attributeAt: aSymbol [
 		  detect: [ :member |
 		  member name = aSymbol and: [ member isAttribute ] ]
 		  ifNone: [ nil ]
+]
+
+{ #category : 'class access' }
+MicroUMLClassNode >> attributeNodeClass [
+
+	^ MicroUMLAttributeNode
 ]
 
 { #category : 'accessing' }
@@ -171,12 +178,6 @@ MicroUMLClassNode >> memberAt: aSymbol [
 	^ members detect: [ :member | member name = aSymbol ] ifNone: [ ]
 ]
 
-{ #category : 'class access' }
-MicroUMLClassNode >> memberNodeClass [
-
-	^ MicroUMLMemberNode
-]
-
 { #category : 'accessing' }
 MicroUMLClassNode >> members [
 
@@ -190,6 +191,12 @@ MicroUMLClassNode >> methodAt: aSymbol [
 		  detect: [ :member |
 		  member name = aSymbol and: [ member isMethod ] ]
 		  ifNone: [ nil ]
+]
+
+{ #category : 'class access' }
+MicroUMLClassNode >> methodNodeClass [
+
+	^ MicroUMLMethodNode
 ]
 
 { #category : 'accessing' }

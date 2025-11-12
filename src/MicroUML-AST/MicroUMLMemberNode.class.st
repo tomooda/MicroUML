@@ -8,6 +8,7 @@ Class {
 	#superclass : 'MicroUMLAstNode',
 	#instVars : [
 		'name',
+		'classNode',
 		'argumentTypes',
 		'visibility',
 		'type',
@@ -18,6 +19,12 @@ Class {
 	#category : 'MicroUML-AST',
 	#package : 'MicroUML-AST'
 }
+
+{ #category : 'testing' }
+MicroUMLMemberNode class >> isAbstract [
+
+	^ self = MicroUMLMemberNode
+]
 
 { #category : 'adding' }
 MicroUMLMemberNode >> addModifier: aSymbol [
@@ -74,6 +81,18 @@ MicroUMLMemberNode >> bePublic [
 ]
 
 { #category : 'accessing' }
+MicroUMLMemberNode >> classNode [
+
+	^ classNode
+]
+
+{ #category : 'accessing' }
+MicroUMLMemberNode >> classNode: aMicroUMLClassNode [
+
+	classNode := aMicroUMLClassNode
+]
+
+{ #category : 'accessing' }
 MicroUMLMemberNode >> defaultVisibility [
 
 	^ self isMethod
@@ -122,13 +141,7 @@ MicroUMLMemberNode >> isInstanceSide [
 { #category : 'testing' }
 MicroUMLMemberNode >> isMethod [
 
-	^ isMethod ifNil: [ argumentTypes notNil ]
-]
-
-{ #category : 'accessing' }
-MicroUMLMemberNode >> isMethod: aBooleanOrNil [
-
-	isMethod := aBooleanOrNil
+	^ self subclassResponsibility
 ]
 
 { #category : 'testing' }

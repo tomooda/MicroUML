@@ -242,9 +242,3 @@ MicroUMLGenerator >> initialize [
 	classNames := Set new.
 	diagram := self classDiagramClass new
 ]
-
-{ #category : 'class access' }
-MicroUMLGenerator >> memberNodeClass [
-
-	^ MicroUMLMemberNode
-]
