@@ -8,6 +8,7 @@ Class {
 	#name : 'MicroUMLClassNode',
 	#superclass : 'MicroUMLAstNode',
 	#instVars : [
+		'diagram',
 		'name',
 		'superclass',
 		'traits',
@@ -50,10 +51,29 @@ MicroUMLClassNode >> addModifier: aSymbol [
 	^ nil
 ]
 
+{ #category : 'menus' }
+MicroUMLClassNode >> addTrait [
+
+	(self
+		 request: 'Add trait named'
+		 initialAnswer: ''
+		 title: 'Add trait to ' , self name , ' class') ifNotNil: [ :answer |
+			(answer trim ifNotEmpty: #asSymbol) ifNotEmpty: [ :traitName |
+					(traits includes: traitName) ifFalse: [
+							self addTrait: traitName.
+							self announceDiagramChange ] ] ]
+]
+
 { #category : 'adding' }
 MicroUMLClassNode >> addTrait: aSymbol [
 
 	^ traits add: aSymbol
+]
+
+{ #category : 'announcing' }
+MicroUMLClassNode >> announceDiagramChange [
+
+	diagram ifNotNil: #announceChange
 ]
 
 { #category : 'accessing' }
@@ -114,10 +134,88 @@ MicroUMLClassNode >> beTrait [
 	isTrait := true
 ]
 
+{ #category : 'menus' }
+MicroUMLClassNode >> changeSuperclass [
+
+	| oldSuperclass |
+	oldSuperclass := superclass.
+	(self
+		 request: 'Name of superclass'
+		 initialAnswer: oldSuperclass
+		 title: 'Superclass of ' , self name) ifNotNil: [ :answer |
+			self superclass:
+				(answer trim ifNotEmpty: #asSymbol ifEmpty: [ nil ]).
+			self announceDiagramChange ]
+]
+
+{ #category : 'menus' }
+MicroUMLClassNode >> contextMenu [
+
+	^ SpMenuPresenter new
+		  title: self name;
+		  addGroup: [ :group |
+				  group
+					  addItem: [ :item |
+							  item
+								  name: 'Rename...';
+								  action: [ self rename ] ];
+					  addItem: [ :item |
+							  self isAbstract
+								  ifTrue: [
+										  item
+											  name: 'Be concrete';
+											  action: [
+													  self beConcrete.
+													  self announceDiagramChange ] ]
+								  ifFalse: [
+										  item
+											  name: 'Be abstract';
+											  action: [
+													  self beAbstract.
+													  self announceDiagramChange ] ] ];
+					  addItem: [ :item |
+							  self isClass
+								  ifTrue: [
+										  item
+											  name: 'Be trait';
+											  action: [
+													  self beTrait.
+													  self announceDiagramChange ] ]
+								  ifFalse: [
+										  item
+											  name: 'Be class';
+											  action: [
+													  self beClass.
+													  self announceDiagramChange ] ] ] ];
+		  addGroup: [ :group |
+				  group
+					  addItem: [ :item |
+							  item
+								  name: 'Superclass...';
+								  action: [ self changeSuperclass ] ];
+					  addItem: [ :item |
+							  item
+								  name: 'Traits';
+								  subMenu: self traitsMenu ] ];
+		  yourself
+]
+
 { #category : 'accessing' }
 MicroUMLClassNode >> currentMember [
 
 	^ members ifNotEmpty: #last ifEmpty: [ nil ]
+]
+
+{ #category : 'accessing' }
+MicroUMLClassNode >> diagram [
+
+	^ diagram
+]
+
+{ #category : 'accessing' }
+MicroUMLClassNode >> diagram: aMicroUMLDiagramNode [
+
+	diagram := aMicroUMLDiagramNode
 ]
 
 { #category : 'initialization' }
@@ -133,6 +231,12 @@ MicroUMLClassNode >> initialize [
 MicroUMLClassNode >> isAbstract [
 
 	^ isAbstract = true
+]
+
+{ #category : 'testing' }
+MicroUMLClassNode >> isClass [
+
+	^ self isTrait not
 ]
 
 { #category : 'testing' }
@@ -153,10 +257,10 @@ MicroUMLClassNode >> isMicroUMLClassNode [
 	^ true
 ]
 
-{ #category : 'accessing' }
+{ #category : 'testing' }
 MicroUMLClassNode >> isTrait [
 
-	^ isTrait
+	^ isTrait = true
 ]
 
 { #category : 'accessing' }
@@ -294,6 +398,44 @@ MicroUMLClassNode >> removeAllMembers [
 	members removeAll
 ]
 
+{ #category : 'menus' }
+MicroUMLClassNode >> removeTrait: aSymbol [
+
+	traits remove: aSymbol ifAbsent: [ ^ self ].
+	self announceDiagramChange
+]
+
+{ #category : 'menus' }
+MicroUMLClassNode >> rename [
+
+	| oldName |
+	oldName := self name.
+	(self
+		 request: 'New name for the class'
+		 initialAnswer: oldName
+		 title: 'Rename ' , oldName) ifNotNil: [ :answer |
+			answer trim ifNotEmpty: [ :newName |
+					(diagram ifNil: [ self ])
+						symbolsDo: [ :symbol |
+								symbol = newName ifTrue: [
+											^ self alert:
+													  'The name ' , newName
+													  , ' is already used. Try another one.' ] ];
+						renameClass: oldName asSymbol to: newName asSymbol.
+					self announceDiagramChange ] ]
+]
+
+{ #category : 'accessing' }
+MicroUMLClassNode >> renameClass: aSymbol to: anotherSymbol [
+
+	name = aSymbol ifTrue: [ name := anotherSymbol ].
+	superclass = aSymbol ifTrue: [ superclass := anotherSymbol ].
+	(traits includes: aSymbol) ifTrue: [
+		traits := traits copyReplaceAll: aSymbol with: anotherSymbol ].
+	members do: [ :memberNode |
+		memberNode renameClass: aSymbol to: anotherSymbol ]
+]
+
 { #category : 'accessing' }
 MicroUMLClassNode >> superclass [
 
@@ -306,6 +448,15 @@ MicroUMLClassNode >> superclass: aSymbol [
 	superclass := aSymbol
 ]
 
+{ #category : 'enumerating' }
+MicroUMLClassNode >> symbolsDo: aBlock [
+
+	aBlock value: name.
+	superclass ifNotNil: aBlock.
+	traits do: aBlock.
+	members do: [ :memberNode | memberNode symbolsDo: aBlock ]
+]
+
 { #category : 'accessing' }
 MicroUMLClassNode >> traits [
 
@@ -316,4 +467,24 @@ MicroUMLClassNode >> traits [
 MicroUMLClassNode >> traitsDo: aBlock [
 
 	traits do: aBlock
+]
+
+{ #category : 'menus' }
+MicroUMLClassNode >> traitsMenu [
+
+	| traitsMenu |
+	traitsMenu := SpMenuPresenter new.
+	traitsMenu addGroup: [ :group |
+			group addItem: [ :item |
+					item
+						name: 'Add trait...';
+						action: [ self addTrait ] ] ].
+	traits ifNotEmpty: [
+			traitsMenu addGroup: [ :group |
+					traits do: [ :traitName |
+							group addItem: [ :item |
+									item
+										name: 'Remove trait ' , traitName;
+										action: [ self removeTrait: traitName ] ] ] ] ].
+	^ traitsMenu
 ]

@@ -223,6 +223,24 @@ MicroUMLMemberNode >> printMicroUMLOn: aStream [
 ]
 
 { #category : 'accessing' }
+MicroUMLMemberNode >> renameClass: aSymbol to: anotherSymbol [
+
+	(argumentTypes notNil and: [ argumentTypes includes: aSymbol ])
+		ifTrue: [
+				argumentTypes := argumentTypes
+					                 copyReplaceAll: aSymbol
+					                 with: anotherSymbol ].
+	type = aSymbol ifTrue: [ type := anotherSymbol ]
+]
+
+{ #category : 'enumerating' }
+MicroUMLMemberNode >> symbolsDo: aBlock [
+
+	argumentTypes ifNotNil: [ argumentTypes do: aBlock ].
+	type ifNotNil: aBlock
+]
+
+{ #category : 'accessing' }
 MicroUMLMemberNode >> type [
 
 	^ type

@@ -27,7 +27,7 @@ MicroUMLEditor class >> exampleWithDiagram [
 	(self withDiagram: uml diagram) open
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'instance creation' }
 MicroUMLEditor class >> withDiagram: aDiagram [
 
 	^ self new
@@ -65,24 +65,33 @@ MicroUMLEditor >> defaultLayout [
 		yourself
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'updating' }
+MicroUMLEditor >> diagramChanged: aMicroUMLClassDiagramChangedAnnouncement [
+
+	self showDiagram: aMicroUMLClassDiagramChangedAnnouncement diagram
+]
+
+{ #category : 'enabling/disabling' }
 MicroUMLEditor >> disableLiveDrawing [
 
 	code whenTextChangedDo: [ :text | "do nothing" ]
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'drawing' }
 MicroUMLEditor >> drawDiagram [
 
-	| uml classNodeInteraction |
-	uml := code text trimmed
-		       ifEmpty: [ MicroUMLAstBuilder new ]
-		       ifNotEmpty: [ self compileUml ].
-
-	builder classDiagramNode: uml diagram.
+	| diagram classNodeInteraction |
+	diagram := (code text trimmed
+		            ifEmpty: [ MicroUMLAstBuilder new ]
+		            ifNotEmpty: [ self compileUml ]) diagram.
+	diagram announcer
+		when: MicroUMLClassDiagramChangedAnnouncement
+		send: #diagramChanged:
+		to: self.
+	builder classDiagramNode: diagram.
 	builder canvas shapes copy do: [ :shape | shape remove ].
 	builder build.
-	classNodeInteraction := MicroUMLClassNodeInteraction new.
+	classNodeInteraction := MicroUMLAstNodeInteraction new.
 	builder canvas shapes do: [ :shape |
 			shape model isMicroUMLClassNode ifTrue: [
 				shape @ classNodeInteraction ] ].
@@ -90,7 +99,7 @@ MicroUMLEditor >> drawDiagram [
 	builder container signalUpdate
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'enabling/disabling' }
 MicroUMLEditor >> enableLiveDrawing [
 
 	code whenTextChangedDo: [ :text |
@@ -102,7 +111,7 @@ MicroUMLEditor >> example [
 	<script: 'self example'>
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'generating' }
 MicroUMLEditor >> generateClasses [
 
 	| generator |
@@ -186,7 +195,7 @@ MicroUMLEditor >> initializeWindow: aWindowPresenter [
 		initialExtent: 1300@800.
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'file IO' }
 MicroUMLEditor >> saveAsPng [
 
 	(StSaveFilePresenter extensions: {'png'})
@@ -198,14 +207,14 @@ MicroUMLEditor >> saveAsPng [
 	
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'drawing' }
 MicroUMLEditor >> showDiagram: aDiagram [
 
 	code text: aDiagram microUML.
 	self drawDiagram
 ]
 
-{ #category : 'as yet unclassified' }
+{ #category : 'accessing' }
 MicroUMLEditor >> targetPackageName: aString [
 
 	targetPackageName := aString 

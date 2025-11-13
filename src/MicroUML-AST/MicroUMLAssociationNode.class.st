@@ -8,6 +8,7 @@ Class {
 	#name : 'MicroUMLAssociationNode',
 	#superclass : 'MicroUMLAstNode',
 	#instVars : [
+		'diagram',
 		'leftClass',
 		'leftHead',
 		'leftLabel',
@@ -91,6 +92,18 @@ MicroUMLAssociationNode >> beSolid [
 MicroUMLAssociationNode >> defaultLine [
 
 	^ #solid
+]
+
+{ #category : 'accessing' }
+MicroUMLAssociationNode >> diagram [
+
+	^ diagram
+]
+
+{ #category : 'accessing' }
+MicroUMLAssociationNode >> diagram: aMicroUMLDiagramNode [
+
+	diagram := aMicroUMLDiagramNode
 ]
 
 { #category : 'accessing' }
@@ -240,6 +253,22 @@ MicroUMLAssociationNode >> printMicroUMLOn: aStream [
 	self printMicroUMLInLeftClassOn: aStream
 ]
 
+{ #category : 'testing' }
+MicroUMLAssociationNode >> refersToName: aSymbol [
+
+	^ leftClass = aSymbol or: [
+		  rightClass = aSymbol or: [ associationClass = aSymbol ] ]
+]
+
+{ #category : 'accessing' }
+MicroUMLAssociationNode >> renameClass: aSymbol to: anotherSymbol [
+
+	leftClass = aSymbol ifTrue: [ leftClass := anotherSymbol ].
+	rightClass = aSymbol ifTrue: [ rightClass := anotherSymbol ].
+	associationClass = aSymbol ifTrue: [
+		associationClass := anotherSymbol ]
+]
+
 { #category : 'accessing' }
 MicroUMLAssociationNode >> rightClass [
 
@@ -286,4 +315,13 @@ MicroUMLAssociationNode >> rightMultiplicity [
 MicroUMLAssociationNode >> rightMultiplicity: aString [
 
 	rightMultiplicity := aString
+]
+
+{ #category : 'enumerating' }
+MicroUMLAssociationNode >> symbolsDo: aBlock [
+
+	aBlock
+		value: leftClass;
+		value: rightClass;
+		value: associationClass
 ]

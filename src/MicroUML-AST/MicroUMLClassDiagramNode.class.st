@@ -3,7 +3,8 @@ Class {
 	#superclass : 'MicroUMLAstNode',
 	#instVars : [
 		'classes',
-		'associations'
+		'associations',
+		'announcer'
 	],
 	#category : 'MicroUML-AST',
 	#package : 'MicroUML-AST'
@@ -19,6 +20,21 @@ MicroUMLClassDiagramNode >> addAssociation: aMicroUMLAssociationNode [
 	^ aMicroUMLAssociationNode
 ]
 
+{ #category : 'announcing' }
+MicroUMLClassDiagramNode >> announceChange [
+
+	self announcer announce:
+		(MicroUMLClassDiagramChangedAnnouncement new
+			 diagram: self;
+			 yourself)
+]
+
+{ #category : 'announcing' }
+MicroUMLClassDiagramNode >> announcer [
+
+	^ announcer ifNil: [ announcer := Announcer new ]
+]
+
 { #category : 'accessing' }
 MicroUMLClassDiagramNode >> associations [
 
@@ -32,6 +48,7 @@ MicroUMLClassDiagramNode >> associations: aCollectionOfMicroUMLAssociationNode [
 	| newAssociations |
 	newAssociations := OrderedDictionary new.
 	aCollectionOfMicroUMLAssociationNode do: [ :associationNode |
+			associationNode diagram: self.
 			(newAssociations
 				 at: associationNode leftClass
 				 ifAbsentPut: [ OrderedCollection new ]) add: associationNode ].
@@ -78,7 +95,8 @@ MicroUMLClassDiagramNode >> classes [
 MicroUMLClassDiagramNode >> classes: aCollectionOfMicroUMLClassNode [
 
 	classes := (aCollectionOfMicroUMLClassNode collect: [ :classNode |
-		            classNode name -> classNode ]) asOrderedDictionary
+			            classNode diagram: self.
+			            classNode name -> classNode ]) asOrderedDictionary
 ]
 
 { #category : 'enumerating' }
@@ -93,6 +111,7 @@ MicroUMLClassDiagramNode >> ensureClassNamed: aSymbol [
 	^ classes at: aSymbol ifAbsentPut: [
 			  self classNodeClass new
 				  name: aSymbol;
+				  diagram: self;
 				  yourself ]
 ]
 
@@ -172,4 +191,35 @@ MicroUMLClassDiagramNode >> printMicroUMLWithAssociationsUnderClassesOn: aStream
 											cr;
 											nextPutAll: '  '.
 										associationNode printMicroUMLInLeftClassOn: aStream ] ] ] ]
+]
+
+{ #category : 'accessing' }
+MicroUMLClassDiagramNode >> renameClass: aSymbol to: anotherSymbol [
+
+	(classes includesKey: aSymbol) ifTrue: [
+			classes := (classes associations collect: [ :assoc |
+					            (assoc key = aSymbol
+						             ifTrue: [ anotherSymbol ]
+						             ifFalse: [ assoc key ]) -> assoc value ])
+				           asOrderedDictionary ].
+	classes do: [ :classNode |
+		classNode renameClass: aSymbol to: anotherSymbol ].
+	(associations includesKey: aSymbol) ifTrue: [
+			associations := (associations associations collect: [ :assoc |
+					                 (assoc key = aSymbol
+						                  ifTrue: [ anotherSymbol ]
+						                  ifFalse: [ assoc key ]) -> assoc value ])
+				                asOrderedDictionary ].
+	associations do: [ :associationNodes |
+			associationNodes do: [ :associationNode |
+				associationNode renameClass: aSymbol to: anotherSymbol ] ]
+]
+
+{ #category : 'enumerating' }
+MicroUMLClassDiagramNode >> symbolsDo: aBlock [
+
+	classes do: [ :classNode | classNode symbolsDo: aBlock ].
+	associations do: [ :associationNodes |
+			associationNodes do: [ :associationNode |
+				associationNode symbolsDo: aBlock ] ]
 ]
