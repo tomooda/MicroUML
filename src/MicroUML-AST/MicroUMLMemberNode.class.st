@@ -9,12 +9,10 @@ Class {
 	#instVars : [
 		'name',
 		'classNode',
-		'argumentTypes',
 		'visibility',
 		'type',
 		'isClassSide',
-		'isAbstract',
-		'isMethod'
+		'isAbstract'
 	],
 	#category : 'MicroUML-AST',
 	#package : 'MicroUML-AST'
@@ -32,28 +30,36 @@ MicroUMLMemberNode >> addModifier: aSymbol [
 	aSymbol = #abstract ifTrue: [
 			isAbstract := true.
 			^ aSymbol ].
+	aSymbol = #static ifTrue: [
+			isClassSide := true.
+			^ aSymbol ].
 	(#( public protected private ) includes: aSymbol) ifTrue: [
 			visibility := aSymbol.
 			^ aSymbol ].
 	^ nil
 ]
 
-{ #category : 'accessing' }
-MicroUMLMemberNode >> argumentTypes [
-
-	^ argumentTypes
+{ #category : 'announcing' }
+MicroUMLMemberNode >> announceDiagramChange [
+	(classNode ifNotNil: #diagram) ifNotNil: #announceChange
 ]
 
 { #category : 'accessing' }
-MicroUMLMemberNode >> argumentTypes: anArrayOfSymbol [
+MicroUMLMemberNode >> beAbstract [
 
-	argumentTypes := anArrayOfSymbol
+	isAbstract := true
 ]
 
 { #category : 'accessing' }
 MicroUMLMemberNode >> beClassSide [
 
 	isClassSide := true
+]
+
+{ #category : 'accessing' }
+MicroUMLMemberNode >> beConcrete [
+
+	isAbstract := false
 ]
 
 { #category : 'accessing' }
@@ -145,6 +151,12 @@ MicroUMLMemberNode >> isMethod [
 ]
 
 { #category : 'testing' }
+MicroUMLMemberNode >> isMicroUMLMemberNode [
+
+	^ true
+]
+
+{ #category : 'testing' }
 MicroUMLMemberNode >> isPrivate [
 
 	^ self visibility = #private
@@ -173,6 +185,7 @@ MicroUMLMemberNode >> modifiers [
 
 	^ Array streamContents: [ :stream |
 			  self isAbstract ifTrue: [ stream nextPut: #abstract ].
+			  self isClassSide ifTrue: [ stream nextPut: #static ].
 			  self visibility ~= self defaultVisibility ifTrue: [
 				  stream nextPut: self visibility ] ]
 ]
@@ -181,6 +194,7 @@ MicroUMLMemberNode >> modifiers [
 MicroUMLMemberNode >> modifiers: anArrayOfSymbol [
 
 	isAbstract := anArrayOfSymbol includes: #abstract.
+	isClassSide := anArrayOfSymbol includes: #static.
 	(anArrayOfSymbol includes: #public) ifTrue: [ visibility := #public ].
 	(anArrayOfSymbol includes: #protected) ifTrue: [
 		visibility := #protected ].
@@ -200,43 +214,15 @@ MicroUMLMemberNode >> name: anObject [
 	name := anObject
 ]
 
-{ #category : 'printing' }
-MicroUMLMemberNode >> printMicroUMLOn: aStream [
-	" #argumentTypes  . #type   "
-
-	aStream nextPutAll: (self isMethod
-			 ifTrue: [ '> ' ] ifFalse: [ '- ' ]).
-	self name storeOn: aStream.
-	self argumentTypes ifNotNil: [ :symbols |
-			aStream nextPutAll: ' ~#('.
-			symbols
-				do: [ :symbol | aStream nextPutAll: symbol ]
-				separatedBy: [ aStream space ].
-			aStream nextPutAll: ')' ].
-	self type ifNotNil: [ :symbol |
-			aStream nextPutAll: ' @ '.
-			symbol storeOn: aStream ].
-	self modifiers ifNotNil: [ :symbols |
-			symbols do: [ :symbol |
-					aStream nextPutAll: ' % '.
-					symbol storeOn: aStream ] ]
-]
-
 { #category : 'accessing' }
 MicroUMLMemberNode >> renameClass: aSymbol to: anotherSymbol [
 
-	(argumentTypes notNil and: [ argumentTypes includes: aSymbol ])
-		ifTrue: [
-				argumentTypes := argumentTypes
-					                 copyReplaceAll: aSymbol
-					                 with: anotherSymbol ].
 	type = aSymbol ifTrue: [ type := anotherSymbol ]
 ]
 
 { #category : 'enumerating' }
 MicroUMLMemberNode >> symbolsDo: aBlock [
 
-	argumentTypes ifNotNil: [ argumentTypes do: aBlock ].
 	type ifNotNil: aBlock
 ]
 

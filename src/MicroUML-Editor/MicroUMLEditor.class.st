@@ -80,7 +80,7 @@ MicroUMLEditor >> disableLiveDrawing [
 { #category : 'drawing' }
 MicroUMLEditor >> drawDiagram [
 
-	| diagram classNodeInteraction |
+	| diagram astNodeInteraction |
 	diagram := (code text trimmed
 		            ifEmpty: [ MicroUMLAstBuilder new ]
 		            ifNotEmpty: [ self compileUml ]) diagram.
@@ -91,10 +91,9 @@ MicroUMLEditor >> drawDiagram [
 	builder classDiagramNode: diagram.
 	builder canvas shapes copy do: [ :shape | shape remove ].
 	builder build.
-	classNodeInteraction := MicroUMLAstNodeInteraction new.
-	builder canvas shapes do: [ :shape |
-			shape model isMicroUMLClassNode ifTrue: [
-				shape @ classNodeInteraction ] ].
+	astNodeInteraction := MicroUMLAstNodeInteraction new.
+	builder canvas allChildren do: [ :shape |
+		shape model isMicroUMLAstNode ifTrue: [ shape @ astNodeInteraction ] ].
 	builder canvas @ RSCanvasController.
 	builder container signalUpdate
 ]

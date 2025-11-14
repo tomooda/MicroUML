@@ -51,7 +51,7 @@ MicroUMLClassNode >> addModifier: aSymbol [
 	^ nil
 ]
 
-{ #category : 'menus' }
+{ #category : 'menu operations' }
 MicroUMLClassNode >> addTrait [
 
 	(self
@@ -134,7 +134,7 @@ MicroUMLClassNode >> beTrait [
 	isTrait := true
 ]
 
-{ #category : 'menus' }
+{ #category : 'menu operations' }
 MicroUMLClassNode >> changeSuperclass [
 
 	| oldSuperclass |
@@ -154,11 +154,12 @@ MicroUMLClassNode >> contextMenu [
 	^ SpMenuPresenter new
 		  title: self name;
 		  addGroup: [ :group |
-				  group
-					  addItem: [ :item |
+				  group addItem: [ :item |
 							  item
 								  name: 'Rename...';
-								  action: [ self rename ] ];
+								  action: [ self rename ] ] ];
+		  addGroup: [ :group |
+				  group
 					  addItem: [ :item |
 							  self isAbstract
 								  ifTrue: [
@@ -188,15 +189,20 @@ MicroUMLClassNode >> contextMenu [
 													  self beClass.
 													  self announceDiagramChange ] ] ] ];
 		  addGroup: [ :group |
-				  group
-					  addItem: [ :item |
-							  item
-								  name: 'Superclass...';
-								  action: [ self changeSuperclass ] ];
-					  addItem: [ :item |
-							  item
-								  name: 'Traits';
-								  subMenu: self traitsMenu ] ];
+				  group addItem: [ :item |
+						  item
+							  name: 'Superclass...';
+							  action: [ self changeSuperclass ] ] ];
+		  addGroup: [ :group |
+				  group addItem: [ :item |
+						  item
+							  name: 'Add trait...';
+							  action: [ self addTrait ] ].
+				  traits do: [ :traitName |
+						  group addItem: [ :item |
+								  item
+									  name: 'Remove trait ' , traitName;
+									  action: [ self removeTrait: traitName ] ] ] ];
 		  yourself
 ]
 
@@ -398,14 +404,14 @@ MicroUMLClassNode >> removeAllMembers [
 	members removeAll
 ]
 
-{ #category : 'menus' }
+{ #category : 'menu operations' }
 MicroUMLClassNode >> removeTrait: aSymbol [
 
 	traits remove: aSymbol ifAbsent: [ ^ self ].
 	self announceDiagramChange
 ]
 
-{ #category : 'menus' }
+{ #category : 'menu operations' }
 MicroUMLClassNode >> rename [
 
 	| oldName |
@@ -467,24 +473,4 @@ MicroUMLClassNode >> traits [
 MicroUMLClassNode >> traitsDo: aBlock [
 
 	traits do: aBlock
-]
-
-{ #category : 'menus' }
-MicroUMLClassNode >> traitsMenu [
-
-	| traitsMenu |
-	traitsMenu := SpMenuPresenter new.
-	traitsMenu addGroup: [ :group |
-			group addItem: [ :item |
-					item
-						name: 'Add trait...';
-						action: [ self addTrait ] ] ].
-	traits ifNotEmpty: [
-			traitsMenu addGroup: [ :group |
-					traits do: [ :traitName |
-							group addItem: [ :item |
-									item
-										name: 'Remove trait ' , traitName;
-										action: [ self removeTrait: traitName ] ] ] ] ].
-	^ traitsMenu
 ]

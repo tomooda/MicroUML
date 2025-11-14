@@ -23,6 +23,12 @@ MicroUMLAstNode >> confirm: aString [
 	^ self application confirm: aString
 ]
 
+{ #category : 'testing' }
+MicroUMLAstNode >> isMicroUMLAstNode [
+
+	^ true
+]
+
 { #category : 'printing' }
 MicroUMLAstNode >> microUML [
 

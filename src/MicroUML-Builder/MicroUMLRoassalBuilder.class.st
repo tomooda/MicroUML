@@ -204,7 +204,6 @@ MicroUMLRoassalBuilder >> newClassBoxFor: aMicroUMLClassNode [
 							            text: '<<' , keyword , '>>';
 							            color: Color darkGray) ].
 			           label := RSLabel new
-				                    model: aMicroUMLClassNode;
 				                    text: aMicroUMLClassNode name;
 				                    color: Color black.
 			           aMicroUMLClassNode isAbstract ifTrue: [ label italic ].

@@ -193,6 +193,19 @@ MicroUMLClassDiagramNode >> printMicroUMLWithAssociationsUnderClassesOn: aStream
 										associationNode printMicroUMLInLeftClassOn: aStream ] ] ] ]
 ]
 
+{ #category : 'adding' }
+MicroUMLClassDiagramNode >> removeAssociation: aMicroUMLAssociationNode [
+
+	associations
+		at: aMicroUMLAssociationNode leftClass
+		ifPresent: [ :associationNodes |
+				associationNodes
+					remove: aMicroUMLAssociationNode ifAbsent: [ ];
+					ifEmpty: [
+						associations removeKey: aMicroUMLAssociationNode leftClass ] ].
+	^ aMicroUMLAssociationNode
+]
+
 { #category : 'accessing' }
 MicroUMLClassDiagramNode >> renameClass: aSymbol to: anotherSymbol [
 
