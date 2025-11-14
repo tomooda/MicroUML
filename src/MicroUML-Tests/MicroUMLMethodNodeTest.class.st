@@ -12,6 +12,13 @@ MicroUMLMethodNodeTest >> setUp [
 ]
 
 { #category : 'tests' }
+MicroUMLMethodNodeTest >> testArgumentTypes [
+
+	member argumentTypes: #( Type1 Type2 ).
+	self assert: member argumentTypes equals: { #Type1. #Type2 }
+]
+
+{ #category : 'tests' }
 MicroUMLMethodNodeTest >> testIsAttribute [
 
 	self deny: member isAttribute

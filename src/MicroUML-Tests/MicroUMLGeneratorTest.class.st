@@ -78,14 +78,13 @@ MicroUMLGeneratorTest >> testGenerateClass [
 	self assert: attribute isAttribute.
 	self assert: attribute isInstanceSide.
 	self assert: attribute name equals: #dummy.
-	self assert: attribute argumentTypes isNil.
 	self assert: attribute type equals: #String.
 
 	getter := (generator diagram classAt: self class name) methodAt:
 		          #dummy.
 	self assert: getter isMethod.
-	self assert: attribute isInstanceSide.
-	self assert: attribute isConcrete.
+	self assert: getter isInstanceSide.
+	self assert: getter isConcrete.
 	self assert: getter name equals: #dummy.
 	self assert: getter argumentTypes equals: #(  ).
 	self assert: getter type isNil.

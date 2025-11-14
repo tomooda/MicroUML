@@ -15,13 +15,6 @@ MicroUMLMemberNodeTest class >> isAbstract [
 ]
 
 { #category : 'tests' }
-MicroUMLMemberNodeTest >> testArgumentTypes [
-
-	member argumentTypes: #( Type1 Type2 ).
-	self assert: member argumentTypes equals: { #Type1. #Type2 }
-]
-
-{ #category : 'tests' }
 MicroUMLMemberNodeTest >> testBeClassSide [
 
 	self deny: member isClassSide.
