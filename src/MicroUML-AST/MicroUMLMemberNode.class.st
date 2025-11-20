@@ -214,6 +214,17 @@ MicroUMLMemberNode >> name: anObject [
 	name := anObject
 ]
 
+{ #category : 'menu operations' }
+MicroUMLMemberNode >> remove [
+
+	(classNode notNil and: [
+			 self
+				 confirm: 'OK to remove ' , self name , '?'
+				 title: 'Confirm remove member' ]) ifTrue: [
+			classNode removeMember: self.
+			self announceDiagramChange ]
+]
+
 { #category : 'accessing' }
 MicroUMLMemberNode >> renameClass: aSymbol to: anotherSymbol [
 

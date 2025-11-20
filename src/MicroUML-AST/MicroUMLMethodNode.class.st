@@ -58,10 +58,15 @@ MicroUMLMethodNode >> contextMenu [
 	^ SpMenuPresenter new
 		  title: self name;
 		  addGroup: [ :group |
-				  group addItem: [ :item |
+				  group
+					  addItem: [ :item |
 							  item
 								  name: 'Rename...';
-								  action: [ self rename ] ] ];
+								  action: [ self rename ] ];
+					  addItem: [ :item |
+							  item
+								  name: 'Remove';
+								  action: [ self remove ] ] ];
 		  addGroup: [ :group |
 				  self isPublic ifFalse: [
 						  group addItem: [ :item |

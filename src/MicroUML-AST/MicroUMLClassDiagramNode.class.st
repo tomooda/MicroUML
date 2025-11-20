@@ -206,6 +206,12 @@ MicroUMLClassDiagramNode >> removeAssociation: aMicroUMLAssociationNode [
 	^ aMicroUMLAssociationNode
 ]
 
+{ #category : 'adding' }
+MicroUMLClassDiagramNode >> removeClass: aMicroUMLClassNode [
+
+	^ classes removeKey: aMicroUMLClassNode name ifAbsent: [ ]
+]
+
 { #category : 'accessing' }
 MicroUMLClassDiagramNode >> renameClass: aSymbol to: anotherSymbol [
 

@@ -23,6 +23,15 @@ MicroUMLAstNode >> confirm: aString [
 	^ self application confirm: aString
 ]
 
+{ #category : 'dialog' }
+MicroUMLAstNode >> confirm: aString title: anotherString [
+
+	^ self application newConfirm
+		  title: anotherString;
+		  label: aString;
+		  openModal
+]
+
 { #category : 'testing' }
 MicroUMLAstNode >> isMicroUMLAstNode [
 

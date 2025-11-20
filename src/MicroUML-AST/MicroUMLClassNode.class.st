@@ -20,12 +20,36 @@ Class {
 	#package : 'MicroUML-AST'
 }
 
+{ #category : 'menu operations' }
+MicroUMLClassNode >> addAttribute [
+
+	(self
+		 request: 'Attribute name'
+		 initialAnswer: ''
+		 title: 'Add attribute') ifNotNil: [ :answer |
+			answer trim ifNotEmpty: [ :newAttributeName |
+					self
+						addAttribute: newAttributeName;
+						announceDiagramChange ] ]
+]
+
 { #category : 'adding' }
 MicroUMLClassNode >> addAttribute: aSymbolOrNil [
 
 	^ members add: (self attributeNodeClass new
 			   name: aSymbolOrNil;
 			   classNode: self)
+]
+
+{ #category : 'menu operations' }
+MicroUMLClassNode >> addMethod [
+
+	(self request: 'Method name' initialAnswer: '' title: 'Add method')
+		ifNotNil: [ :answer |
+				answer trim ifNotEmpty: [ :newMethodName |
+						self
+							addMethod: newMethodName;
+							announceDiagramChange ] ]
 ]
 
 { #category : 'adding' }
@@ -154,10 +178,15 @@ MicroUMLClassNode >> contextMenu [
 	^ SpMenuPresenter new
 		  title: self name;
 		  addGroup: [ :group |
-				  group addItem: [ :item |
+				  group
+					  addItem: [ :item |
 							  item
 								  name: 'Rename...';
-								  action: [ self rename ] ] ];
+								  action: [ self rename ] ];
+					  addItem: [ :item |
+							  item
+								  name: 'Remove';
+								  action: [ self remove ] ] ];
 		  addGroup: [ :group |
 				  group
 					  addItem: [ :item |
@@ -203,7 +232,16 @@ MicroUMLClassNode >> contextMenu [
 								  item
 									  name: 'Remove trait ' , traitName;
 									  action: [ self removeTrait: traitName ] ] ] ];
-		  yourself
+		  addGroup: [ :group |
+				  group
+					  addItem: [ :item |
+							  item
+								  name: 'Add attribute...';
+								  action: [ self addAttribute ] ];
+					  addItem: [ :item |
+							  item
+								  name: 'Add method...';
+								  action: [ self addMethod ] ] ] yourself
 ]
 
 { #category : 'accessing' }
@@ -398,10 +436,27 @@ MicroUMLClassNode >> printMicroUMLOn: aStream [
 				separatedBy: [ aStream cr ] ]
 ]
 
+{ #category : 'menu operations' }
+MicroUMLClassNode >> remove [
+
+	(diagram notNil and: [
+			 self
+				 confirm: 'OK to remove ' , self name , '?'
+				 title: 'Confirm remove class' ]) ifTrue: [
+			diagram removeClass: self.
+			self announceDiagramChange ]
+]
+
 { #category : 'removing' }
 MicroUMLClassNode >> removeAllMembers [
 
 	members removeAll
+]
+
+{ #category : 'adding' }
+MicroUMLClassNode >> removeMember: aMicroUMLMemberNode [
+
+	^ members remove: aMicroUMLMemberNode ifAbsent: [ ]
 ]
 
 { #category : 'menu operations' }
