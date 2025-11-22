@@ -8,6 +8,7 @@ Class {
 	#name : 'MicroUMLClassNode',
 	#superclass : 'MicroUMLAstNode',
 	#instVars : [
+		'diagram',
 		'name',
 		'superclass',
 		'traits',
@@ -20,19 +21,53 @@ Class {
 }
 
 { #category : 'adding' }
+MicroUMLClassNode >> addAssociation: aSymbolOrNil [
+
+	^ diagram ifNotNil: [
+			  diagram addAssociation: (self associationNodeClass new
+					   leftClass: name;
+					   rightClass: aSymbolOrNil) ]
+]
+
+{ #category : 'menu operations' }
+MicroUMLClassNode >> addAttribute [
+
+	(self
+		 request: 'Attribute name'
+		 initialAnswer: ''
+		 title: 'Add attribute') ifNotNil: [ :answer |
+			answer trim ifNotEmpty: [ :newAttributeName |
+					self
+						addAttribute: newAttributeName;
+						announceDiagramChange ] ]
+]
+
+{ #category : 'adding' }
 MicroUMLClassNode >> addAttribute: aSymbolOrNil [
 
-	^ members add: (self memberNodeClass new
+	^ members add: (self attributeNodeClass new
 			   name: aSymbolOrNil;
-			   isMethod: false)
+			   classNode: self)
+]
+
+{ #category : 'menu operations' }
+MicroUMLClassNode >> addMethod [
+
+	(self request: 'Method name' initialAnswer: '' title: 'Add method')
+		ifNotNil: [ :answer |
+				answer trim ifNotEmpty: [ :newMethodName |
+						self
+							addMethod: newMethodName;
+							announceDiagramChange ] ]
 ]
 
 { #category : 'adding' }
 MicroUMLClassNode >> addMethod: aSymbolOrNil [
 
-	^ members add: (self memberNodeClass new
+	^ members add: (self methodNodeClass new
 			   name: aSymbolOrNil;
-			   isMethod: true)
+			   classNode: self;
+			   yourself)
 ]
 
 { #category : 'adding' }
@@ -49,10 +84,35 @@ MicroUMLClassNode >> addModifier: aSymbol [
 	^ nil
 ]
 
+{ #category : 'menu operations' }
+MicroUMLClassNode >> addTrait [
+
+	(self
+		 request: 'Add trait named'
+		 initialAnswer: ''
+		 title: 'Add trait to ' , self name , ' class') ifNotNil: [ :answer |
+			(answer trim ifNotEmpty: #asSymbol) ifNotEmpty: [ :traitName |
+					(traits includes: traitName) ifFalse: [
+							self addTrait: traitName.
+							self announceDiagramChange ] ] ]
+]
+
 { #category : 'adding' }
 MicroUMLClassNode >> addTrait: aSymbol [
 
 	^ traits add: aSymbol
+]
+
+{ #category : 'announcing' }
+MicroUMLClassNode >> announceDiagramChange [
+
+	diagram ifNotNil: #announceChange
+]
+
+{ #category : 'class access' }
+MicroUMLClassNode >> associationNodeClass [
+
+	^ MicroUMLAssociationNode
 ]
 
 { #category : 'accessing' }
@@ -62,6 +122,12 @@ MicroUMLClassNode >> attributeAt: aSymbol [
 		  detect: [ :member |
 		  member name = aSymbol and: [ member isAttribute ] ]
 		  ifNone: [ nil ]
+]
+
+{ #category : 'class access' }
+MicroUMLClassNode >> attributeNodeClass [
+
+	^ MicroUMLAttributeNode
 ]
 
 { #category : 'accessing' }
@@ -107,10 +173,176 @@ MicroUMLClassNode >> beTrait [
 	isTrait := true
 ]
 
+{ #category : 'menu operations' }
+MicroUMLClassNode >> changeSuperclass [
+
+	| oldSuperclass |
+	oldSuperclass := superclass.
+	(self
+		 request: 'Name of superclass'
+		 initialAnswer: oldSuperclass
+		 title: 'Superclass of ' , self name) ifNotNil: [ :answer |
+			self superclass:
+				(answer trim ifNotEmpty: #asSymbol ifEmpty: [ nil ]).
+			self announceDiagramChange ]
+]
+
+{ #category : 'menus' }
+MicroUMLClassNode >> contextMenu [
+
+	^ SpMenuPresenter new
+		  title: self name;
+		  addGroup: [ :group |
+				  group
+					  addItem: [ :item |
+							  item
+								  name: 'Rename...';
+								  action: [ self rename ] ];
+					  addItem: [ :item |
+							  item
+								  name: 'Remove';
+								  icon: self removeIcon;
+								  action: [ self remove ] ] ];
+		  addGroup: [ :group |
+				  group
+					  addItem: [ :item |
+							  self isAbstract
+								  ifTrue: [
+										  item
+											  name: 'Be concrete';
+											  action: [
+													  self beConcrete.
+													  self announceDiagramChange ] ]
+								  ifFalse: [
+										  item
+											  name: 'Be abstract';
+											  action: [
+													  self beAbstract.
+													  self announceDiagramChange ] ] ];
+					  addItem: [ :item |
+							  self isClass
+								  ifTrue: [
+										  item
+											  name: 'Be trait';
+											  action: [
+													  self beTrait.
+													  self announceDiagramChange ] ]
+								  ifFalse: [
+										  item
+											  name: 'Be class';
+											  action: [
+													  self beClass.
+													  self announceDiagramChange ] ] ] ];
+		  addGroup: [ :group |
+				  group addItem: [ :item |
+						  item
+							  name: 'Superclass...';
+							  action: [ self changeSuperclass ] ] ];
+		  addGroup: [ :group |
+				  group
+					  addItem: [ :item |
+							  | traitMenu |
+							  traitMenu := SpMenuPresenter new.
+							  traitMenu addItem: [ :addTraitItem |
+										  addTraitItem
+											  name: 'Add trait...';
+											  icon: self addIcon;
+											  action: [ self addTrait ] ].
+							  traits do: [ :traitName |
+									  traitMenu addItem: [ :removeTraitItem |
+											  removeTraitItem
+												  name: 'Remove ' , traitName;
+												  icon: self removeIcon;
+												  action: [ self removeTrait: traitName ] ] ].
+							  item
+								  name: 'Traits';
+								  subMenu: traitMenu ];
+					  addItem: [ :item |
+							  | attributeMenu |
+							  attributeMenu := SpMenuPresenter new.
+							  attributeMenu addItem: [ :addAttributeItem |
+									  addAttributeItem
+										  name: 'Add attribute...';
+										  icon: self addIcon;
+										  action: [ self addAttribute ] ].
+							  self attributesDo: [ :attributeNode |
+									  attributeMenu addItem: [ :attributeNodeMenu |
+											  attributeNodeMenu
+												  name: attributeNode name;
+												  subMenu: attributeNode contextMenu ] ].
+							  item
+								  name: 'Attributes';
+								  subMenu: attributeMenu ];
+					  addItem: [ :item |
+							  | methodMenu |
+							  methodMenu := SpMenuPresenter new.
+							  methodMenu addItem: [ :addMethodItem |
+									  addMethodItem
+										  name: 'Add method...';
+										  icon: self addIcon;
+										  action: [ self addMethod ] ].
+
+							  self methodsDo: [ :methodNode |
+									  methodMenu addItem: [ :attributeNodeMenu |
+											  attributeNodeMenu
+												  name: methodNode name;
+												  subMenu: methodNode contextMenu ] ].
+							  item
+								  name: 'Methods';
+								  subMenu: methodMenu ];
+					  addItem: [ :item |
+							  | associationMenu |
+							  associationMenu := SpMenuPresenter new.
+							  diagram ifNotNil: [
+									  associationMenu addItem: [ :addAssociationItem |
+											  | addAssociationMenu |
+											  addAssociationMenu := SpMenuPresenter new.
+											  diagram classesDo: [ :classNode |
+													  classNode ~~ self ifTrue: [
+															  addAssociationMenu addItem: [
+																	  :addAssociationClassItem |
+																	  addAssociationClassItem
+																		  name: classNode name;
+																		  action: [
+																				  self addAssociation: classNode name.
+																				  self announceDiagramChange ] ] ] ].
+											  addAssociationItem
+												  name: 'Add association with';
+												  icon: self addIcon;
+												  subMenu: addAssociationMenu ].
+									  diagram associationsDo: [ :associationNode |
+											  associationNode leftClass = name ifTrue: [
+													  associationMenu addItem: [ :associationNodeMenu |
+															  associationNodeMenu
+																  name: 'with ' , associationNode rightClass;
+																  subMenu: associationNode contextMenu ] ].
+											  associationNode rightClass = name ifTrue: [
+													  associationMenu addItem: [ :attributeNodeMenu |
+															  attributeNodeMenu
+																  name: 'with ' , associationNode leftClass;
+																  subMenu: associationNode contextMenu ] ] ] ].
+							  item
+								  name: 'Associations';
+								  subMenu: associationMenu ] ];
+		  yourself
+]
+
 { #category : 'accessing' }
 MicroUMLClassNode >> currentMember [
 
 	^ members ifNotEmpty: #last ifEmpty: [ nil ]
+]
+
+{ #category : 'accessing' }
+MicroUMLClassNode >> diagram [
+
+	^ diagram
+]
+
+{ #category : 'accessing' }
+MicroUMLClassNode >> diagram: aMicroUMLDiagramNode [
+
+	diagram := aMicroUMLDiagramNode
 ]
 
 { #category : 'initialization' }
@@ -126,6 +358,12 @@ MicroUMLClassNode >> initialize [
 MicroUMLClassNode >> isAbstract [
 
 	^ isAbstract = true
+]
+
+{ #category : 'testing' }
+MicroUMLClassNode >> isClass [
+
+	^ self isTrait not
 ]
 
 { #category : 'testing' }
@@ -146,10 +384,10 @@ MicroUMLClassNode >> isMicroUMLClassNode [
 	^ true
 ]
 
-{ #category : 'accessing' }
+{ #category : 'testing' }
 MicroUMLClassNode >> isTrait [
 
-	^ isTrait
+	^ isTrait = true
 ]
 
 { #category : 'accessing' }
@@ -171,12 +409,6 @@ MicroUMLClassNode >> memberAt: aSymbol [
 	^ members detect: [ :member | member name = aSymbol ] ifNone: [ ]
 ]
 
-{ #category : 'class access' }
-MicroUMLClassNode >> memberNodeClass [
-
-	^ MicroUMLMemberNode
-]
-
 { #category : 'accessing' }
 MicroUMLClassNode >> members [
 
@@ -190,6 +422,12 @@ MicroUMLClassNode >> methodAt: aSymbol [
 		  detect: [ :member |
 		  member name = aSymbol and: [ member isMethod ] ]
 		  ifNone: [ nil ]
+]
+
+{ #category : 'class access' }
+MicroUMLClassNode >> methodNodeClass [
+
+	^ MicroUMLMethodNode
 ]
 
 { #category : 'accessing' }
@@ -281,10 +519,65 @@ MicroUMLClassNode >> printMicroUMLOn: aStream [
 				separatedBy: [ aStream cr ] ]
 ]
 
+{ #category : 'menu operations' }
+MicroUMLClassNode >> remove [
+
+	(diagram notNil and: [
+			 self
+				 confirm: 'OK to remove ' , self name , '?'
+				 title: 'Confirm remove class' ]) ifTrue: [
+			diagram removeClass: self.
+			self announceDiagramChange ]
+]
+
 { #category : 'removing' }
 MicroUMLClassNode >> removeAllMembers [
 
 	members removeAll
+]
+
+{ #category : 'adding' }
+MicroUMLClassNode >> removeMember: aMicroUMLMemberNode [
+
+	^ members remove: aMicroUMLMemberNode ifAbsent: [ ]
+]
+
+{ #category : 'menu operations' }
+MicroUMLClassNode >> removeTrait: aSymbol [
+
+	traits remove: aSymbol ifAbsent: [ ^ self ].
+	self announceDiagramChange
+]
+
+{ #category : 'menu operations' }
+MicroUMLClassNode >> rename [
+
+	| oldName |
+	oldName := self name.
+	(self
+		 request: 'New name for the class'
+		 initialAnswer: oldName
+		 title: 'Rename ' , oldName) ifNotNil: [ :answer |
+			answer trim ifNotEmpty: [ :newName |
+					(diagram ifNil: [ self ])
+						symbolsDo: [ :symbol |
+								symbol = newName ifTrue: [
+											^ self alert:
+													  'The name ' , newName
+													  , ' is already used. Try another one.' ] ];
+						renameClass: oldName asSymbol to: newName asSymbol.
+					self announceDiagramChange ] ]
+]
+
+{ #category : 'accessing' }
+MicroUMLClassNode >> renameClass: aSymbol to: anotherSymbol [
+
+	name = aSymbol ifTrue: [ name := anotherSymbol ].
+	superclass = aSymbol ifTrue: [ superclass := anotherSymbol ].
+	(traits includes: aSymbol) ifTrue: [
+		traits := traits copyReplaceAll: aSymbol with: anotherSymbol ].
+	members do: [ :memberNode |
+		memberNode renameClass: aSymbol to: anotherSymbol ]
 ]
 
 { #category : 'accessing' }
@@ -297,6 +590,15 @@ MicroUMLClassNode >> superclass [
 MicroUMLClassNode >> superclass: aSymbol [
 
 	superclass := aSymbol
+]
+
+{ #category : 'enumerating' }
+MicroUMLClassNode >> symbolsDo: aBlock [
+
+	aBlock value: name.
+	superclass ifNotNil: aBlock.
+	traits do: aBlock.
+	members do: [ :memberNode | memberNode symbolsDo: aBlock ]
 ]
 
 { #category : 'accessing' }

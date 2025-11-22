@@ -8,17 +8,10 @@ Class {
 	#package : 'MicroUML-Tests'
 }
 
-{ #category : 'running' }
-MicroUMLMemberNodeTest >> setUp [
+{ #category : 'testing' }
+MicroUMLMemberNodeTest class >> isAbstract [
 
-	member := MicroUMLMemberNode new
-]
-
-{ #category : 'tests' }
-MicroUMLMemberNodeTest >> testArgumentTypes [
-
-	member argumentTypes: #( Type1 Type2 ).
-	self assert: member argumentTypes equals: { #Type1. #Type2 }
+	^ self = MicroUMLMemberNodeTest
 ]
 
 { #category : 'tests' }
@@ -41,23 +34,13 @@ MicroUMLMemberNodeTest >> testBeInstanceSide [
 { #category : 'tests' }
 MicroUMLMemberNodeTest >> testIsAttribute [
 
-	member argumentTypes: nil.
-	self assert: member isAttribute.
-	member argumentTypes: {  }.
-	self deny: member isAttribute.
-	member argumentTypes: { #int }.
-	self deny: member isAttribute
+	self subclassResponsibility
 ]
 
 { #category : 'tests' }
 MicroUMLMemberNodeTest >> testIsMethod [
 
-	member argumentTypes: nil.
-	self deny: member isMethod.
-	member argumentTypes: {  }.
-	self assert: member isMethod.
-	member argumentTypes: { #int }.
-	self assert: member isMethod
+	self subclassResponsibility
 ]
 
 { #category : 'tests' }

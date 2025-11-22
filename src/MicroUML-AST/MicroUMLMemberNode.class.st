@@ -8,16 +8,21 @@ Class {
 	#superclass : 'MicroUMLAstNode',
 	#instVars : [
 		'name',
-		'argumentTypes',
+		'classNode',
 		'visibility',
 		'type',
 		'isClassSide',
-		'isAbstract',
-		'isMethod'
+		'isAbstract'
 	],
 	#category : 'MicroUML-AST',
 	#package : 'MicroUML-AST'
 }
+
+{ #category : 'testing' }
+MicroUMLMemberNode class >> isAbstract [
+
+	^ self = MicroUMLMemberNode
+]
 
 { #category : 'adding' }
 MicroUMLMemberNode >> addModifier: aSymbol [
@@ -25,28 +30,36 @@ MicroUMLMemberNode >> addModifier: aSymbol [
 	aSymbol = #abstract ifTrue: [
 			isAbstract := true.
 			^ aSymbol ].
+	aSymbol = #static ifTrue: [
+			isClassSide := true.
+			^ aSymbol ].
 	(#( public protected private ) includes: aSymbol) ifTrue: [
 			visibility := aSymbol.
 			^ aSymbol ].
 	^ nil
 ]
 
-{ #category : 'accessing' }
-MicroUMLMemberNode >> argumentTypes [
-
-	^ argumentTypes
+{ #category : 'announcing' }
+MicroUMLMemberNode >> announceDiagramChange [
+	(classNode ifNotNil: #diagram) ifNotNil: #announceChange
 ]
 
 { #category : 'accessing' }
-MicroUMLMemberNode >> argumentTypes: anArrayOfSymbol [
+MicroUMLMemberNode >> beAbstract [
 
-	argumentTypes := anArrayOfSymbol
+	isAbstract := true
 ]
 
 { #category : 'accessing' }
 MicroUMLMemberNode >> beClassSide [
 
 	isClassSide := true
+]
+
+{ #category : 'accessing' }
+MicroUMLMemberNode >> beConcrete [
+
+	isAbstract := false
 ]
 
 { #category : 'accessing' }
@@ -71,6 +84,18 @@ MicroUMLMemberNode >> beProtected [
 MicroUMLMemberNode >> bePublic [
 
 	visibility := #public
+]
+
+{ #category : 'accessing' }
+MicroUMLMemberNode >> classNode [
+
+	^ classNode
+]
+
+{ #category : 'accessing' }
+MicroUMLMemberNode >> classNode: aMicroUMLClassNode [
+
+	classNode := aMicroUMLClassNode
 ]
 
 { #category : 'accessing' }
@@ -122,13 +147,13 @@ MicroUMLMemberNode >> isInstanceSide [
 { #category : 'testing' }
 MicroUMLMemberNode >> isMethod [
 
-	^ isMethod ifNil: [ argumentTypes notNil ]
+	^ self subclassResponsibility
 ]
 
-{ #category : 'accessing' }
-MicroUMLMemberNode >> isMethod: aBooleanOrNil [
+{ #category : 'testing' }
+MicroUMLMemberNode >> isMicroUMLMemberNode [
 
-	isMethod := aBooleanOrNil
+	^ true
 ]
 
 { #category : 'testing' }
@@ -160,6 +185,7 @@ MicroUMLMemberNode >> modifiers [
 
 	^ Array streamContents: [ :stream |
 			  self isAbstract ifTrue: [ stream nextPut: #abstract ].
+			  self isClassSide ifTrue: [ stream nextPut: #static ].
 			  self visibility ~= self defaultVisibility ifTrue: [
 				  stream nextPut: self visibility ] ]
 ]
@@ -168,6 +194,7 @@ MicroUMLMemberNode >> modifiers [
 MicroUMLMemberNode >> modifiers: anArrayOfSymbol [
 
 	isAbstract := anArrayOfSymbol includes: #abstract.
+	isClassSide := anArrayOfSymbol includes: #static.
 	(anArrayOfSymbol includes: #public) ifTrue: [ visibility := #public ].
 	(anArrayOfSymbol includes: #protected) ifTrue: [
 		visibility := #protected ].
@@ -187,26 +214,27 @@ MicroUMLMemberNode >> name: anObject [
 	name := anObject
 ]
 
-{ #category : 'printing' }
-MicroUMLMemberNode >> printMicroUMLOn: aStream [
-	" #argumentTypes  . #type   "
+{ #category : 'menu operations' }
+MicroUMLMemberNode >> remove [
 
-	aStream nextPutAll: (self isMethod
-			 ifTrue: [ '> ' ] ifFalse: [ '- ' ]).
-	self name storeOn: aStream.
-	self argumentTypes ifNotNil: [ :symbols |
-			aStream nextPutAll: ' ~#('.
-			symbols
-				do: [ :symbol | aStream nextPutAll: symbol ]
-				separatedBy: [ aStream space ].
-			aStream nextPutAll: ')' ].
-	self type ifNotNil: [ :symbol |
-			aStream nextPutAll: ' @ '.
-			symbol storeOn: aStream ].
-	self modifiers ifNotNil: [ :symbols |
-			symbols do: [ :symbol |
-					aStream nextPutAll: ' % '.
-					symbol storeOn: aStream ] ]
+	(classNode notNil and: [
+			 self
+				 confirm: 'OK to remove ' , self name , '?'
+				 title: 'Confirm remove member' ]) ifTrue: [
+			classNode removeMember: self.
+			self announceDiagramChange ]
+]
+
+{ #category : 'accessing' }
+MicroUMLMemberNode >> renameClass: aSymbol to: anotherSymbol [
+
+	type = aSymbol ifTrue: [ type := anotherSymbol ]
+]
+
+{ #category : 'enumerating' }
+MicroUMLMemberNode >> symbolsDo: aBlock [
+
+	type ifNotNil: aBlock
 ]
 
 { #category : 'accessing' }
