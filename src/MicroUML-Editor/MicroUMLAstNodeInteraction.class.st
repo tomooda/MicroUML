@@ -12,49 +12,7 @@ Class {
 MicroUMLAstNodeInteraction >> contextMenuFor: aRSShape [
 
 	aRSShape model ifNotNil: [ :model |
-			(model isKindOf: MicroUMLClassNode) ifTrue: [
-					^ model contextMenu addGroup: [ :group |
-							  group
-								  addItem: [ :item |
-										  | attributeMenu |
-										  attributeMenu := SpMenuPresenter new.
-										  model attributesDo: [ :attributeNode |
-													  attributeMenu addItem: [ :attributeNodeMenu |
-																  attributeNodeMenu
-																	  name: attributeNode name;
-																	  subMenu: attributeNode contextMenu ] ].
-										  item
-											  name: 'attributes';
-											  subMenu: attributeMenu ];
-								  addItem: [ :item |
-										  | methodMenu |
-										  methodMenu := SpMenuPresenter new.
-										  model methodsDo: [ :methodNode |
-												  methodMenu addItem: [ :attributeNodeMenu |
-														  attributeNodeMenu
-															  name: methodNode name;
-															  subMenu: methodNode contextMenu ] ].
-										  item
-											  name: 'methods';
-											  subMenu: methodMenu ];
-								  addItem: [ :item |
-										  | associationMenu |
-										  associationMenu := SpMenuPresenter new.
-										  model diagram ifNotNil: [ :diagram |
-												  diagram associationsDo: [ :associationNode |
-														  associationNode leftClass = model name ifTrue: [
-																  associationMenu addItem: [ :attributeNodeMenu |
-																		  attributeNodeMenu
-																			  name: 'with ' , associationNode rightClass;
-																			  subMenu: associationNode contextMenu ] ].
-														  associationNode rightClass = model name ifTrue: [
-																  associationMenu addItem: [ :attributeNodeMenu |
-																		  attributeNodeMenu
-																			  name: 'with ' , associationNode leftClass;
-																			  subMenu: associationNode contextMenu ] ] ] ].
-										  item
-											  name: 'associations';
-											  subMenu: associationMenu ] ] ].
+			(model isKindOf: MicroUMLClassNode) ifTrue: [ ^ model contextMenu ].
 			(model isKindOf: MicroUMLMemberNode) ifTrue: [ ^ model contextMenu ].
 			(model isKindOf: MicroUMLAssociationNode) ifTrue: [
 				^ model contextMenu ] ].

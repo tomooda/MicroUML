@@ -66,6 +66,7 @@ MicroUMLMethodNode >> contextMenu [
 					  addItem: [ :item |
 							  item
 								  name: 'Remove';
+								  icon: self removeIcon;
 								  action: [ self remove ] ] ];
 		  addGroup: [ :group |
 				  self isPublic ifFalse: [

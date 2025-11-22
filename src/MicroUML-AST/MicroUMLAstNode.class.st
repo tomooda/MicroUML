@@ -5,6 +5,12 @@ Class {
 	#package : 'MicroUML-AST'
 }
 
+{ #category : 'icons' }
+MicroUMLAstNode >> addIcon [
+
+	^ self application iconNamed: #add
+]
+
 { #category : 'dialog' }
 MicroUMLAstNode >> alert: aString [
 
@@ -32,6 +38,12 @@ MicroUMLAstNode >> confirm: aString title: anotherString [
 		  openModal
 ]
 
+{ #category : 'icons' }
+MicroUMLAstNode >> iconNamed: aSymbol [
+
+	^ self application iconNamed: aSymbol
+]
+
 { #category : 'testing' }
 MicroUMLAstNode >> isMicroUMLAstNode [
 
@@ -48,6 +60,12 @@ MicroUMLAstNode >> microUML [
 MicroUMLAstNode >> printMicroUMLOn: aStream [
 
 	^ self subclassResponsibility
+]
+
+{ #category : 'icons' }
+MicroUMLAstNode >> removeIcon [
+
+	^ self application iconNamed: #remove
 ]
 
 { #category : 'accessing' }

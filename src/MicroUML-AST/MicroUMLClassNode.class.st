@@ -20,6 +20,15 @@ Class {
 	#package : 'MicroUML-AST'
 }
 
+{ #category : 'adding' }
+MicroUMLClassNode >> addAssociation: aSymbolOrNil [
+
+	^ diagram ifNotNil: [
+			  diagram addAssociation: (self associationNodeClass new
+					   leftClass: name;
+					   rightClass: aSymbolOrNil) ]
+]
+
 { #category : 'menu operations' }
 MicroUMLClassNode >> addAttribute [
 
@@ -98,6 +107,12 @@ MicroUMLClassNode >> addTrait: aSymbol [
 MicroUMLClassNode >> announceDiagramChange [
 
 	diagram ifNotNil: #announceChange
+]
+
+{ #category : 'class access' }
+MicroUMLClassNode >> associationNodeClass [
+
+	^ MicroUMLAssociationNode
 ]
 
 { #category : 'accessing' }
@@ -186,6 +201,7 @@ MicroUMLClassNode >> contextMenu [
 					  addItem: [ :item |
 							  item
 								  name: 'Remove';
+								  icon: self removeIcon;
 								  action: [ self remove ] ] ];
 		  addGroup: [ :group |
 				  group
@@ -223,25 +239,92 @@ MicroUMLClassNode >> contextMenu [
 							  name: 'Superclass...';
 							  action: [ self changeSuperclass ] ] ];
 		  addGroup: [ :group |
-				  group addItem: [ :item |
-						  item
-							  name: 'Add trait...';
-							  action: [ self addTrait ] ].
-				  traits do: [ :traitName |
-						  group addItem: [ :item |
-								  item
-									  name: 'Remove trait ' , traitName;
-									  action: [ self removeTrait: traitName ] ] ] ];
-		  addGroup: [ :group |
 				  group
 					  addItem: [ :item |
+							  | traitMenu |
+							  traitMenu := SpMenuPresenter new.
+							  traitMenu addItem: [ :addTraitItem |
+										  addTraitItem
+											  name: 'Add trait...';
+											  icon: self addIcon;
+											  action: [ self addTrait ] ].
+							  traits do: [ :traitName |
+									  traitMenu addItem: [ :removeTraitItem |
+											  removeTraitItem
+												  name: 'Remove ' , traitName;
+												  icon: self removeIcon;
+												  action: [ self removeTrait: traitName ] ] ].
 							  item
-								  name: 'Add attribute...';
-								  action: [ self addAttribute ] ];
+								  name: 'Traits';
+								  subMenu: traitMenu ];
 					  addItem: [ :item |
+							  | attributeMenu |
+							  attributeMenu := SpMenuPresenter new.
+							  attributeMenu addItem: [ :addAttributeItem |
+									  addAttributeItem
+										  name: 'Add attribute...';
+										  icon: self addIcon;
+										  action: [ self addAttribute ] ].
+							  self attributesDo: [ :attributeNode |
+									  attributeMenu addItem: [ :attributeNodeMenu |
+											  attributeNodeMenu
+												  name: attributeNode name;
+												  subMenu: attributeNode contextMenu ] ].
 							  item
-								  name: 'Add method...';
-								  action: [ self addMethod ] ] ] yourself
+								  name: 'Attributes';
+								  subMenu: attributeMenu ];
+					  addItem: [ :item |
+							  | methodMenu |
+							  methodMenu := SpMenuPresenter new.
+							  methodMenu addItem: [ :addMethodItem |
+									  addMethodItem
+										  name: 'Add method...';
+										  icon: self addIcon;
+										  action: [ self addMethod ] ].
+
+							  self methodsDo: [ :methodNode |
+									  methodMenu addItem: [ :attributeNodeMenu |
+											  attributeNodeMenu
+												  name: methodNode name;
+												  subMenu: methodNode contextMenu ] ].
+							  item
+								  name: 'Methods';
+								  subMenu: methodMenu ];
+					  addItem: [ :item |
+							  | associationMenu |
+							  associationMenu := SpMenuPresenter new.
+							  diagram ifNotNil: [
+									  associationMenu addItem: [ :addAssociationItem |
+											  | addAssociationMenu |
+											  addAssociationMenu := SpMenuPresenter new.
+											  diagram classesDo: [ :classNode |
+													  classNode ~~ self ifTrue: [
+															  addAssociationMenu addItem: [
+																	  :addAssociationClassItem |
+																	  addAssociationClassItem
+																		  name: classNode name;
+																		  action: [
+																				  self addAssociation: classNode name.
+																				  self announceDiagramChange ] ] ] ].
+											  addAssociationItem
+												  name: 'Add association with';
+												  icon: self addIcon;
+												  subMenu: addAssociationMenu ].
+									  diagram associationsDo: [ :associationNode |
+											  associationNode leftClass = name ifTrue: [
+													  associationMenu addItem: [ :associationNodeMenu |
+															  associationNodeMenu
+																  name: 'with ' , associationNode rightClass;
+																  subMenu: associationNode contextMenu ] ].
+											  associationNode rightClass = name ifTrue: [
+													  associationMenu addItem: [ :attributeNodeMenu |
+															  attributeNodeMenu
+																  name: 'with ' , associationNode leftClass;
+																  subMenu: associationNode contextMenu ] ] ] ].
+							  item
+								  name: 'Associations';
+								  subMenu: associationMenu ] ];
+		  yourself
 ]
 
 { #category : 'accessing' }

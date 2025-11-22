@@ -171,14 +171,20 @@ MicroUMLAssociationNode >> contextMenu [
 	^ SpMenuPresenter new
 		  title: leftClass , ' - ' , rightClass;
 		  addGroup: [ :group |
+				  group addItem: [ :item |
+							  item
+								  name: 'Remove';
+								  icon: self removeIcon;
+								  action: [ self remove ] ] ];
+		  addGroup: [ :group |
 				  self isAggregation ifFalse: [
-							  group addItem: [ :item |
-										  item
-											  name: 'Be aggregation';
-											  action: [
-													  self
-														  beAggregation;
-														  announceDiagramChange ] ] ].
+						  group addItem: [ :item |
+								  item
+									  name: 'Be aggregation';
+									  action: [
+											  self
+												  beAggregation;
+												  announceDiagramChange ] ] ].
 				  self isComposition ifFalse: [
 						  group addItem: [ :item |
 								  item
@@ -533,6 +539,14 @@ MicroUMLAssociationNode >> refersToName: aSymbol [
 
 	^ leftClass = aSymbol or: [
 		  rightClass = aSymbol or: [ associationClass = aSymbol ] ]
+]
+
+{ #category : 'menu operations' }
+MicroUMLAssociationNode >> remove [
+
+	diagram ifNotNil: [
+			diagram removeAssociation: self.
+			self announceDiagramChange ]
 ]
 
 { #category : 'accessing' }
