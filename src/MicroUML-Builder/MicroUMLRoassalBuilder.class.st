@@ -840,7 +840,8 @@ MicroUMLRoassalBuilder >> renderIn: aRSCanvas [
 				classNode: classNodeAndTraitName first
 				traitName: classNodeAndTraitName second
 				in: aRSCanvas ].
-	aRSCanvas zoomToFit
+	aRSCanvas camera translateTo: (aRSCanvas camera positionFromSpace:
+			 aRSCanvas encompassingRectangle floatCenter)
 ]
 
 { #category : 'rendering' }
