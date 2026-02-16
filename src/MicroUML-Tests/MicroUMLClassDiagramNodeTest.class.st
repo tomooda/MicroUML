@@ -31,12 +31,16 @@ MicroUMLClassDiagramNodeTest >> testPrintMicroUMLWithAssociationsUnderClassesOn 
 	| diagram |
 	diagram := (MicroUMLAstBuilder 
 ===
+#Bar
+===
 #Foo --|> #Bar
 	<>-- #Baz
 	*-- #Quuux
 ===
 #Baz *-- #Quuux) diagram.
 	self assert: (String streamContents: [:stream | diagram printMicroUMLWithAssociationsUnderClassesOn: stream]) equals: 'MicroUMLAstBuilder
+===
+#Bar
 ===
 #Foo --|> #Bar
   <>-- #Baz

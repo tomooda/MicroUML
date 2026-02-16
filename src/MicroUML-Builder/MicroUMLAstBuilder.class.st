@@ -356,7 +356,7 @@ MicroUMLAstBuilder >> addSubclass: aSymbol [
 { #category : 'building - classes' }
 MicroUMLAstBuilder >> addSuperclass: aSymbol [
 
-	currentClass superclass: aSymbol
+	currentClass superclass: (self ensureClassAt: aSymbol) name
 ]
 
 { #category : 'building - classes' }
@@ -431,7 +431,10 @@ MicroUMLAstBuilder >> diagramNodeClass [
 { #category : 'accessing' }
 MicroUMLAstBuilder >> ensureClassAt: aSymbol [
 
-	^ classes at: aSymbol ifAbsentPut: [ self newClassNode ]
+	^ classes at: aSymbol ifAbsentPut: [
+			  self newClassNode
+				  name: aSymbol;
+				  yourself ]
 ]
 
 { #category : 'rendering' }

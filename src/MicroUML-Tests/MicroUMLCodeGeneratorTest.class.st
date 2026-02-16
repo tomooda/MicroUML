@@ -107,13 +107,19 @@ MicroUMLCodeGeneratorTest >> testGenerateInstanceVariables [
 { #category : 'tests' }
 MicroUMLCodeGeneratorTest >> testIsReadyToGenerateClass [
 
-	| animal cat |
+	| object animal cat |
+	object := uml classAt: #Object__.
 	animal := uml classAt: #Animal__.
 	cat := uml classAt: #Cat__.
-	self assert: (generator isReadyToGenerateClass: animal).
+	self assert: (generator isReadyToGenerateClass: object).
+	self deny: (generator isReadyToGenerateClass: animal).
+	self deny: (generator isReadyToGenerateClass: cat).
 	animal superclass: #Object.
+	self assert: (generator isReadyToGenerateClass: object).
 	self assert: (generator isReadyToGenerateClass: animal).
 	self deny: (generator isReadyToGenerateClass: cat).
 	cat superclass: nil.
+	self assert: (generator isReadyToGenerateClass: object).
+	self assert: (generator isReadyToGenerateClass: animal).
 	self assert: (generator isReadyToGenerateClass: cat)
 ]
