@@ -76,7 +76,13 @@ MicroUMLClassDiagramNode >> astBuilderClass [
 { #category : 'accessing' }
 MicroUMLClassDiagramNode >> classAt: aSymbol [
 
-	^ classes at: aSymbol
+	^ self classAt: aSymbol ifAbsent: [ nil ]
+]
+
+{ #category : 'accessing' }
+MicroUMLClassDiagramNode >> classAt: aSymbol ifAbsent: errorBlock [
+
+	^ classes at: aSymbol ifAbsent: errorBlock
 ]
 
 { #category : 'class access' }
