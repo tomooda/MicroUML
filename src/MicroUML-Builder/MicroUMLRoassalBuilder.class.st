@@ -7,8 +7,7 @@ Class {
 	#superclass : 'RSBuilder',
 	#instVars : [
 		'classDiagramNode',
-		'nodes',
-		'edges'
+		'nodes'
 	],
 	#category : 'MicroUML-Builder',
 	#package : 'MicroUML-Builder'
@@ -40,41 +39,10 @@ MicroUMLRoassalBuilder class >> exampleSerie2 [
 		open
 ]
 
-{ #category : 'private' }
-MicroUMLRoassalBuilder >> accessMarkFor: aMicroUMLMemberNode [
-	
-]
+{ #category : 'accessing' }
+MicroUMLRoassalBuilder >> associationEdgeColor [
 
-{ #category : 'edge layouting' }
-MicroUMLRoassalBuilder >> attachPointFromBottomOf: aRectangle to: anotherRectangle [
-
-	| theta |
-	theta := (anotherRectangle center - aRectangle center) theta.
-	^ aRectangle bottomCenter + (aRectangle width * 0.3 * theta cos @ 0)
-]
-
-{ #category : 'edge layouting' }
-MicroUMLRoassalBuilder >> attachPointFromLeftOf: aRectangle to: anotherRectangle [
-
-	| theta |
-	theta := (anotherRectangle center - aRectangle center) theta.
-	^ aRectangle leftCenter + (0 @ (aRectangle height * 0.3 * theta sin))
-]
-
-{ #category : 'edge layouting' }
-MicroUMLRoassalBuilder >> attachPointFromRightOf: aRectangle to: anotherRectangle [
-
-	| theta |
-	theta := (anotherRectangle center - aRectangle center) theta.
-	^ aRectangle rightCenter + (0 @ (aRectangle height * 0.3 * theta sin))
-]
-
-{ #category : 'edge layouting' }
-MicroUMLRoassalBuilder >> attachPointFromTopOf: aRectangle to: anotherRectangle [
-
-	| theta |
-	theta := (anotherRectangle center - aRectangle center) theta.
-	^ aRectangle topCenter + (aRectangle width * 0.3 * theta cos @ 0)
+	^ Color lightGray
 ]
 
 { #category : 'accessing' }
@@ -89,108 +57,23 @@ MicroUMLRoassalBuilder >> classDiagramNode: aMicroUMLClassDiagramNode [
 	classDiagramNode := aMicroUMLClassDiagramNode
 ]
 
-{ #category : 'edge layouting' }
-MicroUMLRoassalBuilder >> controlPointsFrom: aRectangle to: anotherRectangle inCanvas: aRSCanvas [
+{ #category : 'accessing' }
+MicroUMLRoassalBuilder >> horizontalMargin [
 
-	| geometries leastPenalty bestControlPoints |
-	geometries := self geometriesInCanvas: aRSCanvas.
-	leastPenalty := Float infinity.
-	bestControlPoints := nil.
-	self
-		possibleControlPointsFrom: aRectangle
-		to: anotherRectangle
-		do: [ :cp |
-				| penalty |
-				penalty := self
-					           penaltyAgainstControlPoints: cp
-					           withGeometries: geometries.
-				penalty < leastPenalty ifTrue: [
-						leastPenalty := penalty.
-						bestControlPoints := cp ] ].
-	^ bestControlPoints
+	^ 70.0
 ]
 
 { #category : 'accessing' }
-MicroUMLRoassalBuilder >> gap [
+MicroUMLRoassalBuilder >> inheritanceEdgeColor [
 
-	^ 100
-]
-
-{ #category : 'edge layouting' }
-MicroUMLRoassalBuilder >> geometriesInCanvas: aRSCanvas [
-
-	^ aRSCanvas shapes asArray
-		  select: [ :shape | shape isKindOf: RSBoundingShape ]
-		  thenCollect: [ :shape |
-				  | rect |
-				  rect := shape encompassingRectangle.
-				  GRectangle origin: rect origin corner: rect corner ]
-]
-
-{ #category : 'accessing' }
-MicroUMLRoassalBuilder >> horizontalGap [
-
-	^ 150
+	^ Color lightGray
 ]
 
 { #category : 'initialization' }
 MicroUMLRoassalBuilder >> initialize [
 
 	super initialize.
-	nodes := Dictionary new.
-	edges := OrderedCollection new
-]
-
-{ #category : 'testing' }
-MicroUMLRoassalBuilder >> isBottommostShape: aRSShape in: aCollectionOfRSShape [
-
-	| left right y |
-	left := aRSShape encompassingRectangle left.
-	right := aRSShape encompassingRectangle right.
-	y := aRSShape encompassingRectangle top.
-	^ aCollectionOfRSShape allSatisfy: [ :shape |
-			  y > shape encompassingRectangle bottom or: [
-					  shape encompassingRectangle right < left or: [
-						  shape encompassingRectangle left > right ] ] ]
-]
-
-{ #category : 'testing' }
-MicroUMLRoassalBuilder >> isLeftmostShape: aRSShape in: aCollectionOfRSShape [
-
-	| x top bottom |
-	x := aRSShape encompassingRectangle right.
-	top := aRSShape encompassingRectangle top.
-	bottom := aRSShape encompassingRectangle bottom.
-	^ aCollectionOfRSShape allSatisfy: [ :shape |
-			  x < shape encompassingRectangle left or: [
-					  shape encompassingRectangle bottom < top or: [
-						  shape encompassingRectangle top > bottom ] ] ]
-]
-
-{ #category : 'testing' }
-MicroUMLRoassalBuilder >> isRightmostShape: aRSShape in: aCollectionOfRSShape [
-
-	| x top bottom |
-	x := aRSShape encompassingRectangle left.
-	top := aRSShape encompassingRectangle top.
-	bottom := aRSShape encompassingRectangle bottom.
-	^ aCollectionOfRSShape allSatisfy: [ :shape |
-			  x > shape encompassingRectangle right or: [
-					  shape encompassingRectangle bottom < top or: [
-						  shape encompassingRectangle top > bottom ] ] ]
-]
-
-{ #category : 'testing' }
-MicroUMLRoassalBuilder >> isTopmostShape: aRSShape in: aCollectionOfRSShape [
-
-	| left right y |
-	left := aRSShape encompassingRectangle left.
-	right := aRSShape encompassingRectangle right.
-	y := aRSShape encompassingRectangle bottom.
-	^ aCollectionOfRSShape allSatisfy: [ :shape |
-			  y < shape encompassingRectangle top or: [
-					  shape encompassingRectangle right < left or: [
-						  shape encompassingRectangle left > right ] ] ]
+	nodes := Dictionary new
 ]
 
 { #category : 'instance creation' }
@@ -286,35 +169,37 @@ MicroUMLRoassalBuilder >> newEdgeFor: aMicroUMLAssociationNode [
 	| bazier |
 	bazier := RSBezier new
 		          model: aMicroUMLAssociationNode;
-		          color: Color black;
+		          color: self associationEdgeColor;
 		          markerStart:
 			          (self newMarkerFor: aMicroUMLAssociationNode leftHead);
 		          markerEnd:
 			          (self newMarkerFor: aMicroUMLAssociationNode rightHead);
-		          attachPoint: RSBorderAttachPoint new;
 		          yourself.
 	aMicroUMLAssociationNode line = #dashed ifTrue: [ bazier dashed ].
 	^ bazier
 ]
 
 { #category : 'instance creation' }
-MicroUMLRoassalBuilder >> newInheritanceLinkBetween: aMicroUMLClassBox andSuperclass: anotherMicroUMLClassBox [
+MicroUMLRoassalBuilder >> newInheritanceMarker [
 
-	^ RSBezier new
-		  color: Color black;
-		  markerStart: ((RSPolygon new
-				    points: {
-						    (-8 @ 8).
-						    (0 @ 0).
-						    (8 @ 8) };
-				    color: Color white;
-				    borderColor: Color black;
-				    borderWidth: 1;
-				    asMarker) offset: 4);
-		  attachPoint: RSBorderAttachPoint new;
-		  from: anotherMicroUMLClassBox;
-		  to: aMicroUMLClassBox;
-		  controlPointsController: RSVerticalCPAPController new;
+	^ RSPolygon new
+		  points: {
+				  (-8 @ 8).
+				  (0 @ 0).
+				  (8 @ 8) };
+		  color: Color white;
+		  borderColor: Color black;
+		  borderWidth: 1;
+		  yourself
+]
+
+{ #category : 'instance creation' }
+MicroUMLRoassalBuilder >> newLollipopMarker [
+
+	^ RSCircle new
+		  extent: 20.0 @ 20.0;
+		  color: Color white;
+		  border: (RSBorder new color: Color black);
 		  yourself
 ]
 
@@ -392,18 +277,6 @@ MicroUMLRoassalBuilder >> newMemberLabelFor: aMicroUMLMemberNode [
 	^ label
 ]
 
-{ #category : 'instance creation' }
-MicroUMLRoassalBuilder >> newTraitLinkBetween: aRSShape andLollipop: anotherRSShape [
-
-	^ RSBezier new
-		  color: Color black;
-		  attachPoint: RSCenteredAttachPoint new;
-		  from: aRSShape;
-		  to: anotherRSShape;
-		  controlPointsController: RSVerticalCPAPController new;
-		  yourself
-]
-
 { #category : 'private' }
 MicroUMLRoassalBuilder >> offsetForLabel: aRSLabel markerExtent: aPoint directing: anotherPoint to: yetAnotherPoint [
 
@@ -436,327 +309,209 @@ MicroUMLRoassalBuilder >> offsetForMultiplicity: aRSLabel markerExtent: aPoint d
 					   * (anotherPoint y sign + 0.5) sign) ]
 ]
 
-{ #category : 'edge layouting' }
-MicroUMLRoassalBuilder >> penaltyAgainstControlPoints: anArrayOfPoint withGeometries: aCollectionOfGeometry [
+{ #category : 'rendering' }
+MicroUMLRoassalBuilder >> renderAssociationsIn: aRSCanvas [
 
-	| points lines penalty |
-	points := (RSBezier new controlPoints: anArrayOfPoint) lines.
-	lines := (1 to: points size - 1) collect: [ :i |
-		         GLine through: (points at: i) and: (points at: i + 1) ].
-	penalty := 0.
-	aCollectionOfGeometry do: [ :geometry |
-			(lines anySatisfy: [ :line |
-				 (geometry intersectionsWithLine: line) notEmpty ]) ifTrue: [
-				penalty := penalty + 1 ] ].
-	^ penalty
-]
-
-{ #category : 'edge layouting' }
-MicroUMLRoassalBuilder >> possibleControlPointsFrom: aRectangle to: anotherRectangle do: aBlock [
-
-	self
-		possibleControlPointsFromLeft: aRectangle
-		toRight: anotherRectangle
-		do: aBlock;
-		possibleControlPointsFromRight: aRectangle
-		toLeft: anotherRectangle
-		do: aBlock;
-		possibleControlPointsFromBottom: aRectangle
-		toTop: anotherRectangle
-		do: aBlock;
-		possibleControlPointsFromTop: aRectangle
-		toBottom: anotherRectangle
-		do: aBlock.
-
-	self
-		possibleControlPointsFromLeft: aRectangle
-		toLeft: anotherRectangle
-		do: aBlock;
-		possibleControlPointsFromRight: aRectangle
-		toRight: anotherRectangle
-		do: aBlock.
-
-	self
-		possibleControlPointsFromRight: aRectangle
-		toBottom: anotherRectangle
-		do: aBlock;
-		possibleControlPointsFromBottom: aRectangle
-		toRight: anotherRectangle
-		do: aBlock;
-		possibleControlPointsFromBottom: aRectangle
-		toLeft: anotherRectangle
-		do: aBlock;
-		possibleControlPointsFromLeft: aRectangle
-		toBottom: anotherRectangle
-		do: aBlock;
-		possibleControlPointsFromBottom: aRectangle
-		toBottom: anotherRectangle
-		do: aBlock.
-
-	self
-		possibleControlPointsFromLeft: aRectangle
-		toTop: anotherRectangle
-		do: aBlock;
-		possibleControlPointsFromRight: aRectangle
-		toTop: anotherRectangle
-		do: aBlock;
-		possibleControlPointsFromTop: aRectangle
-		toRight: anotherRectangle
-		do: aBlock;
-		possibleControlPointsFromTop: aRectangle
-		toLeft: anotherRectangle
-		do: aBlock;
-		possibleControlPointsFromTop: aRectangle
-		toTop: anotherRectangle
-		do: aBlock
-]
-
-{ #category : 'edge layouting' }
-MicroUMLRoassalBuilder >> possibleControlPointsFromBottom: aRectangle toBottom: anotherRectangle do: aBlock [
-
-	| bottom p1 p2 |
-	bottom := (aRectangle bottom max: anotherRectangle bottom)
-	          + self verticalGap.
-	p1 := self attachPointFromBottomOf: aRectangle to: anotherRectangle.
-	p2 := self attachPointFromBottomOf: anotherRectangle to: aRectangle.
-	(p1 x between: anotherRectangle left and: anotherRectangle right)
-		ifTrue: [ ^ self ].
-	(p2 x between: aRectangle left and: aRectangle right) ifTrue: [
-		^ self ].
-	aBlock value: {
-			p1.
-			(p1 x @ bottom).
-			(p2 x @ bottom).
-			p2 }
-]
-
-{ #category : 'edge layouting' }
-MicroUMLRoassalBuilder >> possibleControlPointsFromBottom: aRectangle toLeft: anotherRectangle do: aBlock [
-
-	| p1 p2 |
-	aRectangle bottom + self verticalGap <= anotherRectangle center y
-		ifFalse: [ ^ self ].
-	aRectangle center x + self horizontalGap <= anotherRectangle left
-		ifFalse: [ ^ self ].
-	p1 := self attachPointFromBottomOf: aRectangle to: anotherRectangle.
-	p2 := self attachPointFromLeftOf: anotherRectangle to: aRectangle.
-	aBlock value: {
-			p1.
-			(p1 x @ p2 y).
-			p2 }
-]
-
-{ #category : 'edge layouting' }
-MicroUMLRoassalBuilder >> possibleControlPointsFromBottom: aRectangle toRight: anotherRectangle do: aBlock [
-
-	| p1 p2 |
-	aRectangle bottom + self verticalGap <= anotherRectangle center y
-		ifFalse: [ ^ self ].
-	anotherRectangle right + self horizontalGap <= aRectangle center x
-		ifFalse: [ ^ self ].
-	p1 := self attachPointFromBottomOf: aRectangle to: anotherRectangle.
-	p2 := self attachPointFromRightOf: anotherRectangle to: aRectangle.
-	aBlock value: {
-			p1.
-			(p1 x @ p2 y).
-			p2 }
-]
-
-{ #category : 'edge layouting' }
-MicroUMLRoassalBuilder >> possibleControlPointsFromBottom: aRectangle toTop: anotherRectangle do: aBlock [
-
-	| p1 p2 middle |
-	aRectangle bottom + self verticalGap < anotherRectangle top ifFalse: [
-		^ self ].
-	p1 := self attachPointFromBottomOf: aRectangle to: anotherRectangle.
-	p2 := self attachPointFromTopOf: anotherRectangle to: aRectangle.
-	middle := p1 y + p2 y / 2.0.
-	aBlock value: {
-			p1.
-			(p1 x @ middle).
-			(p2 x @ middle).
-			p2 }
-]
-
-{ #category : 'edge layouting' }
-MicroUMLRoassalBuilder >> possibleControlPointsFromLeft: aRectangle toBottom: anotherRectangle do: aBlock [
-
-	self
-		possibleControlPointsFromBottom: anotherRectangle
-		toLeft: aRectangle
-		do: [ :cp | aBlock value: cp reversed ]
-]
-
-{ #category : 'edge layouting' }
-MicroUMLRoassalBuilder >> possibleControlPointsFromLeft: aRectangle toLeft: anotherRectangle do: aBlock [
-
-	| left p1 p2 |
-	left := (aRectangle left min: anotherRectangle left)
-	        - self horizontalGap.
-	p1 := self attachPointFromLeftOf: aRectangle to: anotherRectangle.
-	p2 := self attachPointFromLeftOf: anotherRectangle to: aRectangle.
-	(p1 y between: anotherRectangle top and: anotherRectangle bottom)
-		ifTrue: [ ^ self ].
-	(p2 y between: aRectangle top and: aRectangle bottom) ifTrue: [
-		^ self ].
-	aBlock value: {
-			p1.
-			(left @ p1 y).
-			(left @ p2 y).
-			p2 }
-]
-
-{ #category : 'edge layouting' }
-MicroUMLRoassalBuilder >> possibleControlPointsFromLeft: aRectangle toRight: anotherRectangle do: aBlock [
-
-	| p1 p2 middle |
-	anotherRectangle right + self horizontalGap < aRectangle left
-		ifFalse: [ ^ self ].
-	p1 := self attachPointFromLeftOf: aRectangle to: anotherRectangle.
-	p2 := self attachPointFromRightOf: anotherRectangle to: aRectangle.
-	middle := p1 x + p2 x / 2.0.
-	aBlock value: {
-			p1.
-			(middle @ p1 y).
-			(middle @ p2 y).
-			p2 }
-]
-
-{ #category : 'edge layouting' }
-MicroUMLRoassalBuilder >> possibleControlPointsFromLeft: aRectangle toTop: anotherRectangle do: aBlock [
-
-	| p1 p2 |
-	anotherRectangle center x + self horizontalGap <= aRectangle left
-		ifFalse: [ ^ self ].
-	aRectangle center y + self verticalGap <= anotherRectangle top
-		ifFalse: [ ^ self ].
-	p1 := self attachPointFromLeftOf: aRectangle to: anotherRectangle.
-	p2 := self attachPointFromTopOf: anotherRectangle to: aRectangle.
-	aBlock value: {
-			p1.
-			(p2 x @ p1 y).
-			p2 }
-]
-
-{ #category : 'edge layouting' }
-MicroUMLRoassalBuilder >> possibleControlPointsFromRight: aRectangle toBottom: anotherRectangle do: aBlock [
-
-	self
-		possibleControlPointsFromBottom: anotherRectangle
-		toRight: aRectangle
-		do: [ :cp | aBlock value: cp reversed ]
-]
-
-{ #category : 'edge layouting' }
-MicroUMLRoassalBuilder >> possibleControlPointsFromRight: aRectangle toLeft: anotherRectangle do: aBlock [
-
-	self
-		possibleControlPointsFromLeft: anotherRectangle
-		toRight: aRectangle
-		do: [ :cp | aBlock value: cp reversed ]
-]
-
-{ #category : 'edge layouting' }
-MicroUMLRoassalBuilder >> possibleControlPointsFromRight: aRectangle toRight: anotherRectangle do: aBlock [
-
-	| right p1 p2 |
-	right := (aRectangle right max: anotherRectangle right)
-	         + self horizontalGap.
-	p1 := self attachPointFromRightOf: aRectangle to: anotherRectangle.
-	p2 := self attachPointFromRightOf: anotherRectangle to: aRectangle.
-	(p1 y between: anotherRectangle top and: anotherRectangle bottom)
-		ifTrue: [ ^ self ].
-	(p2 y between: aRectangle top and: aRectangle bottom) ifTrue: [
-		^ self ].
-	aBlock value: {
-			p1.
-			(right @ p1 y).
-			(right @ p2 y).
-			p2 }
-]
-
-{ #category : 'edge layouting' }
-MicroUMLRoassalBuilder >> possibleControlPointsFromRight: aRectangle toTop: anotherRectangle do: aBlock [
-
-	| p1 p2 |
-	aRectangle right + self horizontalGap <= anotherRectangle center x
-		ifFalse: [ ^ self ].
-	aRectangle center y + self verticalGap <= anotherRectangle top
-		ifFalse: [ ^ self ].
-	p1 := self attachPointFromRightOf: aRectangle to: anotherRectangle.
-	p2 := self attachPointFromTopOf: anotherRectangle to: aRectangle.
-	aBlock value: {
-			p1.
-			(p2 x @ p1 y).
-			p2 }
-]
-
-{ #category : 'edge layouting' }
-MicroUMLRoassalBuilder >> possibleControlPointsFromTop: aRectangle toBottom: anotherRectangle do: aBlock [
-
-	self
-		possibleControlPointsFromBottom: anotherRectangle
-		toTop: aRectangle
-		do: [ :cp | aBlock value: cp reversed ]
-]
-
-{ #category : 'edge layouting' }
-MicroUMLRoassalBuilder >> possibleControlPointsFromTop: aRectangle toLeft: anotherRectangle do: aBlock [
-
-	self
-		possibleControlPointsFromLeft: anotherRectangle
-		toTop: aRectangle
-		do: [ :cp | aBlock value: cp reversed ]
-]
-
-{ #category : 'edge layouting' }
-MicroUMLRoassalBuilder >> possibleControlPointsFromTop: aRectangle toRight: anotherRectangle do: aBlock [
-
-	self
-		possibleControlPointsFromRight: anotherRectangle
-		toTop: aRectangle
-		do: [ :cp | aBlock value: cp reversed ]
-]
-
-{ #category : 'edge layouting' }
-MicroUMLRoassalBuilder >> possibleControlPointsFromTop: aRectangle toTop: anotherRectangle do: aBlock [
-
-	| top p1 p2 |
-	top := (aRectangle top min: anotherRectangle top) - self verticalGap.
-	p1 := self attachPointFromTopOf: aRectangle to: anotherRectangle.
-	p2 := self attachPointFromTopOf: anotherRectangle to: aRectangle.
-	(p1 x between: anotherRectangle left and: anotherRectangle right)
-		ifTrue: [ ^ self ].
-	(p2 x between: aRectangle left and: aRectangle right) ifTrue: [
-		^ self ].
-	aBlock value: {
-			p1.
-			(p1 x @ top).
-			(p2 x @ top).
-			p2 }
+	| associationsOnLeft associationsOnRight leftClassSides leftClassFractions rightClassSides rightClassFractions |
+	associationsOnLeft := Dictionary new.
+	associationsOnRight := Dictionary new.
+	leftClassSides := IdentityDictionary new.
+	leftClassFractions := IdentityDictionary new.
+	rightClassSides := IdentityDictionary new.
+	rightClassFractions := IdentityDictionary new.
+	classDiagramNode associationsDo: [ :association |
+			nodes at: association leftClass ifPresent: [ :classShape1 |
+					nodes at: association rightClass ifPresent: [ :classShape2 |
+							(classShape1 encompassingRectangle left
+							 > classShape2 encompassingRectangle right
+								 ifTrue: [
+										 associationsOnLeft
+											 at: association leftClass
+											 ifAbsentPut: [ OrderedCollection new ] ]
+								 ifFalse: [
+										 associationsOnRight
+											 at: association leftClass
+											 ifAbsentPut: [ OrderedCollection new ] ]) addLast:
+								association.
+							(classShape2 encompassingRectangle left
+							 > classShape1 encompassingRectangle right
+								 ifTrue: [
+										 associationsOnLeft
+											 at: association rightClass
+											 ifAbsentPut: [ OrderedCollection new ] ]
+								 ifFalse: [
+										 associationsOnRight
+											 at: association rightClass
+											 ifAbsentPut: [ OrderedCollection new ] ]) addLast:
+								association ] ] ].
+	associationsOnLeft keysAndValuesDo: [ :className :associations |
+			associations withIndexDo: [ :association :index |
+					association leftClass = className
+						ifTrue: [
+								leftClassSides
+									at: association
+									ifPresent: [
+											rightClassSides at: association put: #left.
+											rightClassFractions
+												at: association
+												put: index asFloat / (associations size asFloat + 1.0) ]
+									ifAbsent: [
+											leftClassSides at: association put: #left.
+											leftClassFractions
+												at: association
+												put: index asFloat / (associations size asFloat + 1.0) ] ]
+						ifFalse: [
+								rightClassSides at: association put: #left.
+								rightClassFractions
+									at: association
+									put: index asFloat / (associations size asFloat + 1.0) ] ] ].
+	associationsOnRight keysAndValuesDo: [ :className :associations |
+			associations withIndexDo: [ :association :index |
+					association leftClass = className
+						ifTrue: [
+								leftClassSides
+									at: association
+									ifPresent: [
+											rightClassSides at: association put: #right.
+											rightClassFractions
+												at: association
+												put: index asFloat / (associations size asFloat + 1.0) ]
+									ifAbsent: [
+											leftClassSides at: association put: #right.
+											leftClassFractions
+												at: association
+												put: index asFloat / (associations size asFloat + 1.0) ] ]
+						ifFalse: [
+								rightClassSides at: association put: #right.
+								rightClassFractions
+									at: association
+									put: index asFloat / (associations size asFloat + 1.0) ] ] ].
+	classDiagramNode associationsDo: [ :association |
+			nodes at: association leftClass ifPresent: [ :leftShape |
+					nodes at: association rightClass ifPresent: [ :rightShape |
+							| leftPoint rightPoint edge |
+							leftPoint := ((leftClassSides at: association ifAbsent: [ nil ])
+							              = #left
+								              ifTrue: [
+								              leftShape encompassingRectangle topLeft ]
+								              ifFalse: [
+								              leftShape encompassingRectangle topRight ])
+							             +
+								             (0
+								              @
+									              ((leftClassFractions
+										                at: association
+										                ifAbsent: [ 0.5 ])
+									               * leftShape encompassingRectangle height)).
+							rightPoint := ((rightClassSides
+								                at: association
+								                ifAbsent: [ nil ]) = #left
+								               ifTrue: [
+								               rightShape encompassingRectangle topLeft ]
+								               ifFalse: [
+								               rightShape encompassingRectangle topRight ])
+							              +
+								              (0
+								               @
+									               ((rightClassFractions
+										                 at: association
+										                 ifAbsent: [ 0.5 ])
+									                * rightShape encompassingRectangle height)).
+							edge := self newEdgeFor: association.
+							edge controlPoints: {
+									leftPoint.
+									(leftPoint x + rightPoint x * 0.5 @ leftPoint y).
+									(leftPoint x + rightPoint x * 0.5 @ rightPoint y).
+									rightPoint }.
+							self renderLinkLabelsFor: edge in: aRSCanvas.
+							aRSCanvas
+								addShape: edge;
+								addEdge: edge ] ] ]
 ]
 
 { #category : 'rendering' }
-MicroUMLRoassalBuilder >> renderExtraLink: aRSBezier from: aRSShape to: anotherRSShape in: aRSCanvas [
+MicroUMLRoassalBuilder >> renderClass: aMicroUMLClassNode left: left top: top subclasses: aDictionary in: aRSCanvas [
 
-	(self
-		 controlPointsFrom: aRSShape encompassingRectangle
-		 to: anotherRSShape encompassingRectangle
-		 inCanvas: aRSCanvas)
-		ifNotNil: [ :cp | aRSBezier controlPoints: cp ]
-		ifNil: [
-				aRSBezier
-					attachPoint: RSBorderAttachPoint new;
-					from: aRSShape;
-					to: anotherRSShape;
-					controlPointsController: RSDirectedBezierCPAPController new ].
-	aRSCanvas add: aRSBezier
+	| right bottom |
+	right := left.
+	bottom := top.
+	nodes at: aMicroUMLClassNode name ifAbsent: [
+			| shape |
+			shape := self newClassBoxFor: aMicroUMLClassNode.
+			shape translateBy:
+				left @ top - shape encompassingRectangle topLeft
+				+ (self horizontalMargin @ self verticalMargin).
+			right := right max:
+				         shape encompassingRectangle right + self horizontalMargin.
+			bottom := bottom max:
+				          shape encompassingRectangle bottom + self verticalMargin.
+			aRSCanvas
+				add: shape;
+				addNode: shape.
+			nodes at: aMicroUMLClassNode name put: shape.
+			self renderLollipopsOfClass: aMicroUMLClassNode in: aRSCanvas ].
+	aDictionary
+		at: aMicroUMLClassNode name
+		ifPresent: [ :subclassNames |
+				| subclassLeft |
+				subclassLeft := left.
+				subclassNames do: [ :subclassName |
+						(classDiagramNode classAt: subclassName) ifNotNil: [
+								:subclassNode |
+								subclassLeft := self
+									                renderClass: subclassNode
+									                left: subclassLeft
+									                top: bottom
+									                subclasses: aDictionary
+									                in: aRSCanvas ] ].
+				right := right max: subclassLeft ].
+	^ right
+]
+
+{ #category : 'rendering' }
+MicroUMLRoassalBuilder >> renderClassesIn: aRSCanvas [
+
+	| numClasses roots subclasses left |
+	nodes removeAll.
+	numClasses := 0.
+	roots := OrderedCollection new.
+	subclasses := OrderedDictionary new.
+	classDiagramNode classesDo: [ :classNode |
+			numClasses := numClasses + 1.
+			classNode superclass
+				ifNotNil: [ :superclassName |
+						(classDiagramNode classAt: superclassName)
+							ifNotNil: [ :superclassNode |
+									(subclasses
+										 at: superclassNode name
+										 ifAbsentPut: [ OrderedCollection new ]) add: classNode name ]
+							ifNil: [ roots add: classNode ] ]
+				ifNil: [ roots add: classNode ] ].
+	left := 0.0.
+	roots do: [ :classNode |
+			left := self
+				        renderClass: classNode
+				        left: left
+				        top: 0.0
+				        subclasses: subclasses
+				        in: aRSCanvas ].
+	subclasses keysAndValuesDo: [ :superclassName :subclassNames |
+			(classDiagramNode classAt: superclassName) ifNotNil: [
+					:superclassNode |
+					(subclassNames
+						 collect: [ :name | classDiagramNode classAt: name ]
+						 thenSelect: #notNil) ifNotEmpty: [ :subclassNodes |
+							self
+								renderInheritanceFrom: superclassNode
+								subclasses: subclassNodes
+								in: aRSCanvas ] ] ]
 ]
 
 { #category : 'rendering' }
 MicroUMLRoassalBuilder >> renderIn: aRSCanvas [
-
-	| lollipops connectedNodes extraEdges |
+	self renderClassesIn: aRSCanvas.
+	self renderAssociationsIn: aRSCanvas.
+	"| lollipops connectedNodes extraEdges |
 	nodes removeAll.
 	edges removeAll.
 	lollipops := Dictionary new.
@@ -795,13 +550,6 @@ MicroUMLRoassalBuilder >> renderIn: aRSCanvas [
 								add: (nodes at: classAst name);
 								add: (nodes at: superclassName).
 							aRSCanvas add: link ] ] ].
-	lollipops keysAndValuesDo: [ :classNodeAndTraitName :lollipop |
-			| link |
-			link := self
-				        newTraitLinkBetween: classNodeAndTraitName first
-				        andLollipop: lollipop.
-			aRSCanvas add: link.
-			link pushBack ].
 	classDiagramNode associationsDo: [ :associationNode |
 			| edge leftNode rightNode |
 			leftNode := nodes at: associationNode leftClass.
@@ -823,7 +571,19 @@ MicroUMLRoassalBuilder >> renderIn: aRSCanvas [
 	RSTreeLayout new
 		verticalGap: self verticalGap;
 		horizontalGap: self horizontalGap;
-		on: (nodes values , lollipops values as: RSGroup).
+		on: (nodes values as: RSGroup).
+	self layoutLollipops: lollipops.
+	lollipops keysAndValuesDo: [ :classNodeAndTraitName :lollipop |
+			| link |
+			link := self
+				        newTraitLinkBetween: classNodeAndTraitName first
+				        andLollipop: lollipop.
+			aRSCanvas add: link.
+			self
+				renderTraitLabelAt: lollipop
+				classNode: classNodeAndTraitName first
+				traitName: classNodeAndTraitName second
+				in: aRSCanvas ].
 	extraEdges do: [ :edge |
 			| leftNode rightNode |
 			leftNode := nodes at: edge model leftClass.
@@ -839,9 +599,48 @@ MicroUMLRoassalBuilder >> renderIn: aRSCanvas [
 				renderTraitLabelAt: lollipop
 				classNode: classNodeAndTraitName first
 				traitName: classNodeAndTraitName second
-				in: aRSCanvas ].
+				in: aRSCanvas ]."
 	aRSCanvas camera translateTo: (aRSCanvas camera positionFromSpace:
 			 aRSCanvas encompassingRectangle floatCenter)
+]
+
+{ #category : 'rendering' }
+MicroUMLRoassalBuilder >> renderInheritanceFrom: superclassNode subclasses: subclassNodes in: aRSCanvas [
+
+	subclassNodes ifNotEmpty: [
+			nodes at: superclassNode name ifPresent: [ :superclassShape |
+					| horizontalLineY left right marker |
+					horizontalLineY := superclassShape encompassingRectangle bottom
+					                   + 20.0.
+					left := right := superclassShape encompassingRectangle left
+					                 + 10.0.
+					marker := self newInheritanceMarker
+						          translateBy:
+							          left @ superclassShape encompassingRectangle bottom;
+						          yourself.
+					aRSCanvas add: marker.
+					aRSCanvas add: (RSLine new
+							 startPoint: left @ marker encompassingRectangle bottom;
+							 endPoint: left @ horizontalLineY;
+							 color: self inheritanceEdgeColor;
+							 yourself).
+					subclassNodes do: [ :subclassNode |
+							nodes at: subclassNode name ifPresent: [ :subclassShape |
+									| x y |
+									x := subclassShape encompassingRectangle left + 10.0.
+									y := subclassShape encompassingRectangle top.
+									left := left min: x.
+									right := right max: x.
+									aRSCanvas add: (RSLine new
+											 startPoint: x @ horizontalLineY;
+											 endPoint: x @ y;
+											 color: self inheritanceEdgeColor;
+											 yourself) ] ].
+					aRSCanvas add: (RSLine new
+							 startPoint: left @ horizontalLineY;
+							 endPoint: right @ horizontalLineY;
+							 color: self inheritanceEdgeColor;
+							 yourself) ] ]
 ]
 
 { #category : 'rendering' }
@@ -931,28 +730,40 @@ MicroUMLRoassalBuilder >> renderLinkLabelsFor: aRSBezier in: aRSCanvas [
 ]
 
 { #category : 'rendering' }
-MicroUMLRoassalBuilder >> renderTraitLabelAt: aRSShape classNode: anotherRSShape traitName: aSymbol in: aRSCanvas [
+MicroUMLRoassalBuilder >> renderLollipopsOfClass: aMicroUMLClassNode in: aRSCanvas [
 
-	| label extent |
-	label := RSLabel new
-		         text: aSymbol asString;
-		         color: Color black;
-		         yourself.
-	extent := label extent.
-	anotherRSShape position y < aRSShape position y
-		ifTrue: [
-				label position:
-					aRSShape encompassingRectangle bottomCenter + (0 @ extent y) ]
-		ifFalse: [
-				label position:
-					aRSShape encompassingRectangle topCenter - (0 @ extent y) ].
-	aRSCanvas add: label
+	nodes at: aMicroUMLClassNode name ifPresent: [ :classShape |
+			| classShapeTop position |
+			classShapeTop := classShape encompassingRectangle top.
+			position := classShape encompassingRectangle topCenter
+			            + classShape encompassingRectangle topRight * 0.5
+			            - (0 @ (30.0 * aMicroUMLClassNode traits size)).
+			aMicroUMLClassNode traitsDo: [ :traitName |
+					| lollipopShape label |
+					lollipopShape := self newLollipopMarker.
+					lollipopShape translateBy: position.
+					aRSCanvas
+						add: lollipopShape;
+						addNode: lollipopShape.
+					aRSCanvas add: (RSLine new
+							 startPoint: position + (0.0 @ 10.0);
+							 endPoint: position x @ classShapeTop;
+							 color: Color black;
+							 yourself).
+					label := RSLabel new
+						         text: traitName asString;
+						         color: Color black;
+						         yourself.
+					aRSCanvas add:
+						(label translateTo:
+							 position + (label textWidth * 0.5 + 15.0 @ 0.0)).
+					position := position + (20.0 @ 30.0) ] ]
 ]
 
 { #category : 'accessing' }
-MicroUMLRoassalBuilder >> verticalGap [
+MicroUMLRoassalBuilder >> verticalMargin [
 
-	^ 100
+	^ 50.0
 ]
 
 { #category : 'private' }
