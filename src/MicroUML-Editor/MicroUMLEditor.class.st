@@ -20,6 +20,21 @@ MicroUMLEditor class >> example [
 ]
 
 { #category : 'examples' }
+MicroUMLEditor class >> exampleArrayHierarchy [
+
+	<example>
+	| uml |
+	uml := MicroUMLClassDiagramGenerator new
+		       generateClass: ArrayedCollection;
+		       generateClass: Array;
+		       generateClass: Float64Array;
+		       generateClass: IntegerArray;
+		       generateClass: PointArray;
+		       diagram.
+	(self withDiagram: uml) open
+]
+
+{ #category : 'examples' }
 MicroUMLEditor class >> exampleWithDiagram [
 	<example>
 	| uml |

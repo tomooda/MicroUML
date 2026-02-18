@@ -39,7 +39,7 @@ MicroUMLGeneratorTest >> dummy: aString [
 { #category : 'running' }
 MicroUMLGeneratorTest >> setUp [
 
-	generator := MicroUMLGenerator new
+	generator := MicroUMLClassDiagramGenerator new
 ]
 
 { #category : 'running' }
