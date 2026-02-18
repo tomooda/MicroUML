@@ -490,7 +490,9 @@ MicroUMLAstBuilder >> startAssociation: aSymbolOrClass [
 
 	currentAssociation := self newAssociationNode
 		                      leftClass: currentClass name;
-		                      rightClass: (self getSymbol: aSymbolOrClass);
+		                      rightClass:
+			                      (self ensureClassAt:
+					                       (self getSymbol: aSymbolOrClass)) name;
 		                      yourself.
 	associations add: currentAssociation.
 	^ currentAssociation
