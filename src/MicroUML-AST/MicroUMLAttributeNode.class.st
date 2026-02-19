@@ -25,6 +25,18 @@ MicroUMLAttributeNode >> isMethod [
 	^ false
 ]
 
+{ #category : 'accessing' }
+MicroUMLAttributeNode >> pharoSlot [
+
+	^ self pharoClass ifNotNil: [ :class |
+			  (self isInstanceSide
+				   ifTrue: [ class ]
+				   ifFalse: [ class class ])
+				  slotNamed: self name
+				  ifFound: #yourself
+				  ifNone: [ nil ] ]
+]
+
 { #category : 'printing' }
 MicroUMLAttributeNode >> printMicroUMLOn: aStream [
 	" #argumentTypes  . #type   "

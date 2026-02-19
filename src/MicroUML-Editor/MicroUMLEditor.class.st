@@ -35,6 +35,16 @@ MicroUMLEditor class >> exampleArrayHierarchy [
 ]
 
 { #category : 'examples' }
+MicroUMLEditor class >> examplePackage [
+
+	<example>
+	self new
+		targetPackageName: 'MicroUML-AST';
+		generateFromPharoPackage;
+		open
+]
+
+{ #category : 'examples' }
 MicroUMLEditor class >> exampleWithDiagram [
 	<example>
 	| uml |
@@ -48,6 +58,25 @@ MicroUMLEditor class >> withDiagram: aDiagram [
 	^ self new
 		showDiagram: aDiagram;
 		yourself
+]
+
+{ #category : 'accessing' }
+MicroUMLEditor >> colorFor: aMicroUMLAstNode [
+
+	aMicroUMLAstNode isMicroUMLClassNode ifTrue: [
+			aMicroUMLAstNode pharoClass ifNotNil: [ :class |
+					class package name ~= targetPackageName ifTrue: [
+						^ self outOfPackageColor ] ].
+			^ self defaultColor ].
+	aMicroUMLAstNode isMicroUMLMemberNode ifTrue: [
+			aMicroUMLAstNode isAttribute
+				ifTrue: [ ^ self colorFor: aMicroUMLAstNode classNode ]
+				ifFalse: [
+						aMicroUMLAstNode pharoMethod ifNotNil: [ :method |
+								method package name ~= targetPackageName ifTrue: [
+									^ self outOfPackageColor ] ].
+						^ self defaultColor ] ].
+	^ self defaultColor
 ]
 
 { #category : 'compiling' }
@@ -64,6 +93,12 @@ MicroUMLEditor >> connectPresenters [
 	code whenTextChangedDo: [ :text |
 		liveDrawingButton isSelected ifTrue: [
 			[ self drawDiagram ] onErrorDo: [ "do nothing" ] ] ]
+]
+
+{ #category : 'accessing' }
+MicroUMLEditor >> defaultColor [
+
+	^ Color black
 ]
 
 { #category : 'layout' }
@@ -136,6 +171,21 @@ MicroUMLEditor >> generateClasses [
 	generator generateClassesInPackageNamed: targetPackageName 
 ]
 
+{ #category : 'updating' }
+MicroUMLEditor >> generateFromPharoPackage [
+
+	self packageDo: [ :package |
+			| diagramGenerator uml |
+			diagramGenerator := MicroUMLClassDiagramGenerator new.
+			diagramGenerator generateClasses: package definedClasses.
+			package extensionMethods do: [ :method |
+					diagramGenerator
+						generateMethod: method selector
+						in: method methodClass ].
+			uml := diagramGenerator diagram.
+			self showDiagram: uml ]
+]
+
 { #category : 'initialization' }
 MicroUMLEditor >> initialize [
 
@@ -149,16 +199,16 @@ MicroUMLEditor >> initialize [
 MicroUMLEditor >> initializePresenters [
 
 	code := self newCode.
-	
-	builder := MicroUMLRoassalBuilder new.
+
+	builder := MicroUMLRoassalBuilder new
+		           colorBlock: [ :node | self colorFor: node ];
+		           yourself.
 	self drawDiagram.
-	
+
 	preview := builder asPresenter.
-	
+
 	toolbar := self newToolbar.
 	self initializeToolbar
-		
-	
 ]
 
 { #category : 'initialization' }
@@ -210,6 +260,29 @@ MicroUMLEditor >> initializeWindow: aWindowPresenter [
 	aWindowPresenter 
 		title: 'MicroUML';
 		initialExtent: 1300@800.
+]
+
+{ #category : 'accessing' }
+MicroUMLEditor >> outOfPackageColor [
+
+	^ Color lightGray
+]
+
+{ #category : 'accessing' }
+MicroUMLEditor >> packageDo: aBlock [
+
+	^ self packageOrganizer
+		  packageNamed: targetPackageName
+		  ifPresent: aBlock
+]
+
+{ #category : 'testing' }
+MicroUMLEditor >> pharoPackageIncludesClassNamed: aString [
+
+	self packageDo: [ :package |
+		^ package classes contains: [ :class |
+			  class name asString = aString ] ].
+	^ false
 ]
 
 { #category : 'file IO' }

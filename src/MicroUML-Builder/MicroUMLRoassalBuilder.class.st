@@ -7,7 +7,8 @@ Class {
 	#superclass : 'RSBuilder',
 	#instVars : [
 		'classDiagramNode',
-		'nodes'
+		'nodes',
+		'colorBlock'
 	],
 	#category : 'MicroUML-Builder',
 	#package : 'MicroUML-Builder'
@@ -58,6 +59,32 @@ MicroUMLRoassalBuilder >> classDiagramNode: aMicroUMLClassDiagramNode [
 ]
 
 { #category : 'accessing' }
+MicroUMLRoassalBuilder >> colorBlock [
+
+	^ colorBlock
+]
+
+{ #category : 'accessing' }
+MicroUMLRoassalBuilder >> colorBlock: aBlock [
+
+	colorBlock := aBlock
+]
+
+{ #category : 'accessing' }
+MicroUMLRoassalBuilder >> colorFor: aMicroUMLAstNode [
+
+	^ colorBlock
+		  ifNotNil: [ colorBlock cull: aMicroUMLAstNode ]
+		  ifNil: [ self defaultColor ]
+]
+
+{ #category : 'accessing' }
+MicroUMLRoassalBuilder >> defaultColor [
+
+	^ Color black
+]
+
+{ #category : 'accessing' }
 MicroUMLRoassalBuilder >> horizontalMargin [
 
 	^ 70.0
@@ -79,7 +106,8 @@ MicroUMLRoassalBuilder >> initialize [
 { #category : 'instance creation' }
 MicroUMLRoassalBuilder >> newClassBoxFor: aMicroUMLClassNode [
 
-	| myLabel attributeShapes methodShapes memberShapes rect y1 y2 |
+	| color myLabel attributeShapes methodShapes memberShapes rect y1 y2 |
+	color := self colorFor: aMicroUMLClassNode.
 	myLabel := Array streamContents: [ :stream |
 			           | label |
 			           aMicroUMLClassNode keywordsDo: [ :keyword |
@@ -88,7 +116,7 @@ MicroUMLRoassalBuilder >> newClassBoxFor: aMicroUMLClassNode [
 							            color: Color darkGray) ].
 			           label := RSLabel new
 				                    text: aMicroUMLClassNode name;
-				                    color: Color black.
+				                    color: color.
 			           aMicroUMLClassNode isAbstract ifTrue: [ label italic ].
 			           stream nextPut: label ].
 	RSVerticalLineLayout new
@@ -104,7 +132,7 @@ MicroUMLRoassalBuilder >> newClassBoxFor: aMicroUMLClassNode [
 						   extent: myLabel extent + (10 @ 6);
 						   position: myLabel position;
 						   color: Color white;
-						   borderColor: Color black;
+						   borderColor: color;
 						   borderWidth: 1).
 					  myLabel } asShapeFor: aMicroUMLClassNode ]
 		ifFalse: [
@@ -151,14 +179,16 @@ MicroUMLRoassalBuilder >> newClassBoxFor: aMicroUMLClassNode [
 					  (RSBox new
 						   extent: rect extent + (10 @ 6);
 						   color: Color white;
-						   borderColor: Color black;
+						   borderColor: color;
 						   borderWidth: 1).
 					  (RSLine new
 						   startPoint: rect extent x / -2 - 5 @ y1;
-						   endPoint: rect extent x / 2 + 5 @ y1).
+						   endPoint: rect extent x / 2 + 5 @ y1;
+						   color: color).
 					  (RSLine new
 						   startPoint: rect extent x / -2 - 5 @ y2;
-						   endPoint: rect extent x / 2 + 5 @ y2).
+						   endPoint: rect extent x / 2 + 5 @ y2;
+						   color: color).
 					  myLabel.
 					  memberShapes } asShapeFor: aMicroUMLClassNode ]
 ]
@@ -252,23 +282,24 @@ MicroUMLRoassalBuilder >> newMarkerFor: aSymbol [
 MicroUMLRoassalBuilder >> newMemberLabelFor: aMicroUMLMemberNode [
 
 	| label |
-	label := RSLabel
+	label := RSLabel new
 		         text: (String streamContents: [ :stream |
-					          stream nextPutAll:
-						          (self visibilityMarkFor: aMicroUMLMemberNode).
-					          stream nextPutAll: aMicroUMLMemberNode name.
-					          aMicroUMLMemberNode isMethod ifTrue: [
-							          aMicroUMLMemberNode argumentTypes ifNotNil: [
-									          :argumentTypes |
-									          stream
-										          nextPut: $(;
-										          nextPutAll:
-											          (', ' join: aMicroUMLMemberNode argumentTypes);
-										          nextPut: $) ] ].
-					          aMicroUMLMemberNode type ifNotNil: [ :type |
-							          stream
-								          nextPut: $:;
-								          nextPutAll: type ] ])
+						          stream nextPutAll:
+								          (self visibilityMarkFor: aMicroUMLMemberNode).
+						          stream nextPutAll: aMicroUMLMemberNode name.
+						          aMicroUMLMemberNode isMethod ifTrue: [
+									          aMicroUMLMemberNode argumentTypes ifNotNil: [
+												          :argumentTypes |
+												          stream
+													          nextPut: $(;
+													          nextPutAll:
+														          (', ' join: aMicroUMLMemberNode argumentTypes);
+													          nextPut: $) ] ].
+						          aMicroUMLMemberNode type ifNotNil: [ :type |
+								          stream
+									          nextPut: $:;
+									          nextPutAll: type ] ]);
+		         color: (self colorFor: aMicroUMLMemberNode);
 		         model: aMicroUMLMemberNode.
 	aMicroUMLMemberNode isAbstract ifTrue: [
 		label emphasis: TextEmphasis italic ].

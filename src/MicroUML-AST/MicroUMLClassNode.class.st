@@ -347,6 +347,12 @@ MicroUMLClassNode >> name: aSymbol [
 	name := aSymbol asSymbol
 ]
 
+{ #category : 'accessing' }
+MicroUMLClassNode >> pharoClass [
+
+	^ Smalltalk classNamed: self name
+]
+
 { #category : 'printing' }
 MicroUMLClassNode >> printMicroUMLOn: aStream [
 

@@ -58,6 +58,17 @@ MicroUMLMethodNode >> isMethod [
 	^ true
 ]
 
+{ #category : 'accessing' }
+MicroUMLMethodNode >> pharoMethod [
+
+	^ self pharoClass ifNotNil: [ :class |
+			  (self isInstanceSide
+				   ifTrue: [ class ]
+				   ifFalse: [ class class ])
+				  compiledMethodAt: self name
+				  ifAbsent: [ nil ] ]
+]
+
 { #category : 'printing' }
 MicroUMLMethodNode >> printMicroUMLOn: aStream [
 	" #argumentTypes  . #type   "

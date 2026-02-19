@@ -219,6 +219,7 @@ MicroUMLClassDiagramGenerator >> guessAssociation: aString [
 				  self associationNodeClass new
 					  rightClass: name;
 					  rightMultiplicity: multiplicity;
+					  beAggregation;
 					  yourself ]
 		  ifFalse: [ nil ]
 ]
