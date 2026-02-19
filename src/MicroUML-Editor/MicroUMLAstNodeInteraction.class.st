@@ -282,7 +282,8 @@ MicroUMLAstNodeInteraction >> contextMenuForClassNode: aMicroUMLClassNode [
 									  attributeMenu addItem: [ :attributeNodeMenu |
 											  attributeNodeMenu
 												  name: attributeNode name;
-												  subMenu: attributeNode contextMenu ] ].
+												  subMenu:
+													  (self contextMenuForAttributeNode: attributeNode) ] ].
 							  item
 								  name: 'Attributes';
 								  subMenu: attributeMenu ];
@@ -299,7 +300,7 @@ MicroUMLAstNodeInteraction >> contextMenuForClassNode: aMicroUMLClassNode [
 									  methodMenu addItem: [ :attributeNodeMenu |
 											  attributeNodeMenu
 												  name: methodNode name;
-												  subMenu: methodNode contextMenu ] ].
+												  subMenu: (self contextMenuForMethodNode: methodNode) ] ].
 							  item
 								  name: 'Methods';
 								  subMenu: methodMenu ];
@@ -330,13 +331,17 @@ MicroUMLAstNodeInteraction >> contextMenuForClassNode: aMicroUMLClassNode [
 														  associationMenu addItem: [ :associationNodeMenu |
 																  associationNodeMenu
 																	  name: 'with ' , associationNode rightClass;
-																	  subMenu: associationNode contextMenu ] ].
+																	  subMenu:
+																		  (self contextMenuForAssociationNode:
+																				   associationNode) ] ].
 											  associationNode rightClass = aMicroUMLClassNode name
 												  ifTrue: [
 														  associationMenu addItem: [ :attributeNodeMenu |
 																  attributeNodeMenu
 																	  name: 'with ' , associationNode leftClass;
-																	  subMenu: associationNode contextMenu ] ] ] ].
+																	  subMenu:
+																		  (self contextMenuForAssociationNode:
+																				   associationNode) ] ] ] ].
 							  item
 								  name: 'Associations';
 								  subMenu: associationMenu ] ];

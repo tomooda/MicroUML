@@ -110,6 +110,9 @@ MicroUMLEditor >> drawDiagram [
 	builder canvas allChildren do: [ :shape |
 		shape model isMicroUMLAstNode ifTrue: [ shape @ astNodeInteraction ] ].
 	builder canvas @ MicroUMLCanvasController.
+	builder canvas @ (MicroUMLClassDiagramNodeInteraction new
+		 diagram: diagram;
+		 yourself).
 	builder container signalUpdate
 ]
 

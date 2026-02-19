@@ -20,6 +20,23 @@ MicroUMLClassDiagramNode >> addAssociation: aMicroUMLAssociationNode [
 	^ aMicroUMLAssociationNode
 ]
 
+{ #category : 'menu operations' }
+MicroUMLClassDiagramNode >> addClass [
+
+	(self
+		 request: 'Name of the new class'
+		 initialAnswer: 'NewClass'
+		 title: 'Add a new class') ifNotNil: [ :answer |
+			answer trim ifNotEmpty: [ :newName |
+					self symbolsDo: [ :symbol |
+							symbol = newName ifTrue: [
+									^ self alert:
+										  'The name ' , newName
+										  , ' is already used. Try another one.' ] ].
+					self ensureClassNamed: newName asSymbol.
+					self announceChange ] ]
+]
+
 { #category : 'announcing' }
 MicroUMLClassDiagramNode >> announceChange [
 
