@@ -540,97 +540,9 @@ MicroUMLRoassalBuilder >> renderClassesIn: aRSCanvas [
 
 { #category : 'rendering' }
 MicroUMLRoassalBuilder >> renderIn: aRSCanvas [
+
 	self renderClassesIn: aRSCanvas.
 	self renderAssociationsIn: aRSCanvas.
-	"| lollipops connectedNodes extraEdges |
-	nodes removeAll.
-	edges removeAll.
-	lollipops := Dictionary new.
-	connectedNodes := IdentitySet new.
-	extraEdges := OrderedCollection new.
-	classDiagramNode classesDo: [ :classAst |
-			| node |
-			node := self newClassBoxFor: classAst.
-			aRSCanvas
-				add: node;
-				addNode: node.
-			nodes at: classAst name put: node.
-			classAst traitsDo: [ :traitName |
-					| lollipop |
-					lollipop := RSCircle new
-						            extent: 20 @ 20;
-						            color: Color white;
-						            border: (RSBorder new color: Color black);
-						            yourself.
-					aRSCanvas
-						add: lollipop;
-						addNode: lollipop.
-					lollipops
-						at: {
-								node.
-								traitName }
-						put: lollipop ] ].
-	classDiagramNode classesDo: [ :classAst |
-			classAst superclass ifNotNil: [ :superclassName |
-					(nodes includesKey: superclassName) ifTrue: [
-							| link |
-							link := self
-								        newInheritanceLinkBetween: (nodes at: classAst name)
-								        andSuperclass: (nodes at: superclassName).
-							connectedNodes
-								add: (nodes at: classAst name);
-								add: (nodes at: superclassName).
-							aRSCanvas add: link ] ] ].
-	classDiagramNode associationsDo: [ :associationNode |
-			| edge leftNode rightNode |
-			leftNode := nodes at: associationNode leftClass.
-			rightNode := nodes at: associationNode rightClass.
-			edge := self newEdgeFor: associationNode.
-			edges add: edge.
-			((connectedNodes includes: leftNode) and: [
-				 connectedNodes includes: rightNode ])
-				ifTrue: [ extraEdges add: edge ]
-				ifFalse: [
-						edge
-							from: leftNode;
-							to: rightNode;
-							controlPointsController: RSVerticalCPAPController new.
-						aRSCanvas
-							add: edge;
-							addEdge: edge.
-						edge pushBack ] ].
-	RSTreeLayout new
-		verticalGap: self verticalGap;
-		horizontalGap: self horizontalGap;
-		on: (nodes values as: RSGroup).
-	self layoutLollipops: lollipops.
-	lollipops keysAndValuesDo: [ :classNodeAndTraitName :lollipop |
-			| link |
-			link := self
-				        newTraitLinkBetween: classNodeAndTraitName first
-				        andLollipop: lollipop.
-			aRSCanvas add: link.
-			self
-				renderTraitLabelAt: lollipop
-				classNode: classNodeAndTraitName first
-				traitName: classNodeAndTraitName second
-				in: aRSCanvas ].
-	extraEdges do: [ :edge |
-			| leftNode rightNode |
-			leftNode := nodes at: edge model leftClass.
-			rightNode := nodes at: edge model rightClass.
-			self
-				renderExtraLink: edge
-				from: leftNode
-				to: rightNode
-				in: aRSCanvas ].
-	edges do: [ :bezier | self renderLinkLabelsFor: bezier in: aRSCanvas ].
-	lollipops keysAndValuesDo: [ :classNodeAndTraitName :lollipop |
-			self
-				renderTraitLabelAt: lollipop
-				classNode: classNodeAndTraitName first
-				traitName: classNodeAndTraitName second
-				in: aRSCanvas ]."
 	aRSCanvas camera translateTo: (aRSCanvas camera positionFromSpace:
 			 aRSCanvas encompassingRectangle floatCenter)
 ]
