@@ -13,5 +13,6 @@ MicroUMLCanvasController >> defaultInteractions [
 		  RSDraggableCanvasInteraction.
 		  RSKeyNavigationCanvasInteraction.
 		  RSScrollBarsCanvasInteraction.
-		  RSSearchInCanvasInteraction }
+		  RSSearchInCanvasInteraction.
+		  RSZoomToFitCanvasInteraction }
 ]

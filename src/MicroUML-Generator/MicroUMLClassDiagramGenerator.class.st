@@ -9,6 +9,35 @@ Class {
 	#package : 'MicroUML-Generator'
 }
 
+{ #category : 'utilities' }
+MicroUMLClassDiagramGenerator class >> classDiagramFromClasses: aCollectionOfClass [
+
+	| diagramGenerator |
+	diagramGenerator := self new.
+	diagramGenerator generateClasses: aCollectionOfClass.
+	^ diagramGenerator diagram
+]
+
+{ #category : 'utilities' }
+MicroUMLClassDiagramGenerator class >> classDiagramFromPackage: aPackage [
+
+	| diagramGenerator |
+	diagramGenerator := self new.
+	diagramGenerator generateClasses: aPackage definedClasses.
+	aPackage extensionMethods do: [ :method |
+			diagramGenerator
+				generateMethod: method selector
+				in: method methodClass ].
+	^ diagramGenerator diagram
+]
+
+{ #category : 'utilities' }
+MicroUMLClassDiagramGenerator class >> classDiagramFromPackageNamed: aString [
+
+	^ (self packageOrganizer packageNamed: aString ifAbsent: [ nil ])
+		  ifNotNil: [ :package | self classDiagramFromPackage: package ]
+]
+
 { #category : 'examples' }
 MicroUMLClassDiagramGenerator class >> example [
 

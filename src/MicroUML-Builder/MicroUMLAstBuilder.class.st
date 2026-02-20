@@ -68,6 +68,12 @@ MicroUMLAstBuilder class >> === aSymbolOrClassOrArray [
 	^ self new === aSymbolOrClassOrArray
 ]
 
+{ #category : 'UML - class separators' }
+MicroUMLAstBuilder class >> empty [
+
+	^ self new
+]
+
 { #category : 'examples' }
 MicroUMLAstBuilder class >> exampleMicrodown [
 

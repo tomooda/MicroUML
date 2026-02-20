@@ -196,6 +196,9 @@ MicroUMLClassDiagramNode >> printMicroUMLWithAssociationsOutsideClassesOn: aStre
 MicroUMLClassDiagramNode >> printMicroUMLWithAssociationsUnderClassesOn: aStream [
 
 	aStream nextPutAll: self astBuilderClass name.
+	classes ifEmpty: [
+			aStream nextPutAll: ' empty'.
+			^ self ].
 	self classesDo: [ :classNode |
 			aStream
 				cr;
