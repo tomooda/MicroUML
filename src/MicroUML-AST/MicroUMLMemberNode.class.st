@@ -209,9 +209,15 @@ MicroUMLMemberNode >> name [
 ]
 
 { #category : 'accessing' }
-MicroUMLMemberNode >> name: anObject [
+MicroUMLMemberNode >> name: aString [
 
-	name := anObject
+	name := aString
+]
+
+{ #category : 'accessing' }
+MicroUMLMemberNode >> pharoClass [
+
+	^ classNode ifNotNil: [ Smalltalk classNamed: classNode name ]
 ]
 
 { #category : 'menu operations' }

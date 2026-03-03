@@ -68,6 +68,12 @@ MicroUMLAstBuilder class >> === aSymbolOrClassOrArray [
 	^ self new === aSymbolOrClassOrArray
 ]
 
+{ #category : 'UML - class separators' }
+MicroUMLAstBuilder class >> empty [
+
+	^ self new
+]
+
 { #category : 'examples' }
 MicroUMLAstBuilder class >> exampleMicrodown [
 
@@ -356,7 +362,7 @@ MicroUMLAstBuilder >> addSubclass: aSymbol [
 { #category : 'building - classes' }
 MicroUMLAstBuilder >> addSuperclass: aSymbol [
 
-	currentClass superclass: aSymbol
+	currentClass superclass: (self ensureClassAt: aSymbol) name
 ]
 
 { #category : 'building - classes' }
@@ -431,7 +437,10 @@ MicroUMLAstBuilder >> diagramNodeClass [
 { #category : 'accessing' }
 MicroUMLAstBuilder >> ensureClassAt: aSymbol [
 
-	^ classes at: aSymbol ifAbsentPut: [ self newClassNode ]
+	^ classes at: aSymbol ifAbsentPut: [
+			  self newClassNode
+				  name: aSymbol;
+				  yourself ]
 ]
 
 { #category : 'rendering' }
@@ -487,7 +496,9 @@ MicroUMLAstBuilder >> startAssociation: aSymbolOrClass [
 
 	currentAssociation := self newAssociationNode
 		                      leftClass: currentClass name;
-		                      rightClass: (self getSymbol: aSymbolOrClass);
+		                      rightClass:
+			                      (self ensureClassAt:
+					                       (self getSymbol: aSymbolOrClass)) name;
 		                      yourself.
 	associations add: currentAssociation.
 	^ currentAssociation

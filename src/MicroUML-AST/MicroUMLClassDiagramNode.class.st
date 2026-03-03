@@ -20,6 +20,23 @@ MicroUMLClassDiagramNode >> addAssociation: aMicroUMLAssociationNode [
 	^ aMicroUMLAssociationNode
 ]
 
+{ #category : 'menu operations' }
+MicroUMLClassDiagramNode >> addClass [
+
+	(self
+		 request: 'Name of the new class'
+		 initialAnswer: 'NewClass'
+		 title: 'Add a new class') ifNotNil: [ :answer |
+			answer trim ifNotEmpty: [ :newName |
+					self symbolsDo: [ :symbol |
+							symbol = newName ifTrue: [
+									^ self alert:
+										  'The name ' , newName
+										  , ' is already used. Try another one.' ] ].
+					self ensureClassNamed: newName asSymbol.
+					self announceChange ] ]
+]
+
 { #category : 'announcing' }
 MicroUMLClassDiagramNode >> announceChange [
 
@@ -76,7 +93,13 @@ MicroUMLClassDiagramNode >> astBuilderClass [
 { #category : 'accessing' }
 MicroUMLClassDiagramNode >> classAt: aSymbol [
 
-	^ classes at: aSymbol
+	^ self classAt: aSymbol ifAbsent: [ nil ]
+]
+
+{ #category : 'accessing' }
+MicroUMLClassDiagramNode >> classAt: aSymbol ifAbsent: errorBlock [
+
+	^ classes at: aSymbol ifAbsent: errorBlock
 ]
 
 { #category : 'class access' }
@@ -173,6 +196,9 @@ MicroUMLClassDiagramNode >> printMicroUMLWithAssociationsOutsideClassesOn: aStre
 MicroUMLClassDiagramNode >> printMicroUMLWithAssociationsUnderClassesOn: aStream [
 
 	aStream nextPutAll: self astBuilderClass name.
+	classes ifEmpty: [
+			aStream nextPutAll: ' empty'.
+			^ self ].
 	self classesDo: [ :classNode |
 			aStream
 				cr;

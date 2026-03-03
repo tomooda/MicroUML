@@ -1,5 +1,5 @@
 Class {
-	#name : 'MicroUMLGenerator',
+	#name : 'MicroUMLClassDiagramGenerator',
 	#superclass : 'Object',
 	#instVars : [
 		'diagram',
@@ -9,8 +9,37 @@ Class {
 	#package : 'MicroUML-Generator'
 }
 
+{ #category : 'utilities' }
+MicroUMLClassDiagramGenerator class >> classDiagramFromClasses: aCollectionOfClass [
+
+	| diagramGenerator |
+	diagramGenerator := self new.
+	diagramGenerator generateClasses: aCollectionOfClass.
+	^ diagramGenerator diagram
+]
+
+{ #category : 'utilities' }
+MicroUMLClassDiagramGenerator class >> classDiagramFromPackage: aPackage [
+
+	| diagramGenerator |
+	diagramGenerator := self new.
+	diagramGenerator generateClasses: aPackage definedClasses.
+	aPackage extensionMethods do: [ :method |
+			diagramGenerator
+				generateMethod: method selector
+				in: method methodClass ].
+	^ diagramGenerator diagram
+]
+
+{ #category : 'utilities' }
+MicroUMLClassDiagramGenerator class >> classDiagramFromPackageNamed: aString [
+
+	^ (self packageOrganizer packageNamed: aString ifAbsent: [ nil ])
+		  ifNotNil: [ :package | self classDiagramFromPackage: package ]
+]
+
 { #category : 'examples' }
-MicroUMLGenerator class >> example [
+MicroUMLClassDiagramGenerator class >> example [
 
 	(MicroUMLRoassalBuilder new classDiagramNode: (self new
 				  generateClass: self;
@@ -22,7 +51,7 @@ MicroUMLGenerator class >> example [
 ]
 
 { #category : 'examples' }
-MicroUMLGenerator class >> exampleArrayHierarchy [
+MicroUMLClassDiagramGenerator class >> exampleArrayHierarchy [
 
 	(MicroUMLRoassalBuilder new classDiagramNode: (self new
 				  generateClass: ArrayedCollection;
@@ -37,7 +66,7 @@ MicroUMLGenerator class >> exampleArrayHierarchy [
 ]
 
 { #category : 'examples' }
-MicroUMLGenerator class >> exampleClassHierarchy [
+MicroUMLClassDiagramGenerator class >> exampleClassHierarchy [
 
 	(MicroUMLRoassalBuilder new classDiagramNode: (self new
 				  generateClass: ReadStream;
@@ -51,7 +80,7 @@ MicroUMLGenerator class >> exampleClassHierarchy [
 ]
 
 { #category : 'examples' }
-MicroUMLGenerator class >> exampleOrderedCollection [
+MicroUMLClassDiagramGenerator class >> exampleOrderedCollection [
 
 	| diagram |
 	diagram := self new
@@ -69,49 +98,49 @@ MicroUMLGenerator class >> exampleOrderedCollection [
 ]
 
 { #category : 'class access' }
-MicroUMLGenerator >> associationNodeClass [
+MicroUMLClassDiagramGenerator >> associationNodeClass [
 
 	^ MicroUMLAssociationNode
 ]
 
 { #category : 'class access' }
-MicroUMLGenerator >> classDiagramClass [
+MicroUMLClassDiagramGenerator >> classDiagramClass [
 
 	^ MicroUMLClassDiagramNode
 ]
 
 { #category : 'accessing' }
-MicroUMLGenerator >> classNames: aCollectionOfSymbols [
+MicroUMLClassDiagramGenerator >> classNames: aCollectionOfSymbols [
 
 	classNames := aCollectionOfSymbols asSet
 ]
 
 { #category : 'class access' }
-MicroUMLGenerator >> classNodeClass [
+MicroUMLClassDiagramGenerator >> classNodeClass [
 
 	^ MicroUMLClassNode
 ]
 
 { #category : 'accessing' }
-MicroUMLGenerator >> diagram [
+MicroUMLClassDiagramGenerator >> diagram [
 
 	^ diagram
 ]
 
 { #category : 'accessing' }
-MicroUMLGenerator >> ensureClass: aClass [
+MicroUMLClassDiagramGenerator >> ensureClass: aClass [
 
 	^ self ensureClassNamed: aClass name
 ]
 
 { #category : 'accessing' }
-MicroUMLGenerator >> ensureClassNamed: aSymbol [
+MicroUMLClassDiagramGenerator >> ensureClassNamed: aSymbol [
 
 	^ diagram ensureClassNamed: aSymbol
 ]
 
 { #category : 'generating' }
-MicroUMLGenerator >> generateAttribute: aSymbol in: aClass [
+MicroUMLClassDiagramGenerator >> generateAttribute: aSymbol in: aClass [
 
 	| type attributeNode |
 	(self guessAssociation: aSymbol) ifNotNil: [ :association |
@@ -145,7 +174,7 @@ MicroUMLGenerator >> generateAttribute: aSymbol in: aClass [
 ]
 
 { #category : 'generating' }
-MicroUMLGenerator >> generateClass: aClass [
+MicroUMLClassDiagramGenerator >> generateClass: aClass [
 
 	| class classNode |
 	class := aClass instanceSide.
@@ -165,14 +194,14 @@ MicroUMLGenerator >> generateClass: aClass [
 ]
 
 { #category : 'generating' }
-MicroUMLGenerator >> generateClasses: aCollectionOfClass [
+MicroUMLClassDiagramGenerator >> generateClasses: aCollectionOfClass [
 
 	classNames addAll: (aCollectionOfClass collect: #name).
 	aCollectionOfClass do: [ :class | self generateClass: class ]
 ]
 
 { #category : 'generating' }
-MicroUMLGenerator >> generateMethod: aSymbol in: aClass [
+MicroUMLClassDiagramGenerator >> generateMethod: aSymbol in: aClass [
 
 	| methodNode |
 	methodNode := (diagram ensureClassNamed:
@@ -193,7 +222,7 @@ MicroUMLGenerator >> generateMethod: aSymbol in: aClass [
 ]
 
 { #category : 'private' }
-MicroUMLGenerator >> guessAssociation: aString [
+MicroUMLClassDiagramGenerator >> guessAssociation: aString [
 
 	| name multiplicity |
 	multiplicity := nil.
@@ -219,12 +248,13 @@ MicroUMLGenerator >> guessAssociation: aString [
 				  self associationNodeClass new
 					  rightClass: name;
 					  rightMultiplicity: multiplicity;
+					  beAggregation;
 					  yourself ]
 		  ifFalse: [ nil ]
 ]
 
 { #category : 'private' }
-MicroUMLGenerator >> guessParameterType: aString [
+MicroUMLClassDiagramGenerator >> guessParameterType: aString [
 
 	aString
 		withoutPrefix: 'a'
@@ -236,7 +266,7 @@ MicroUMLGenerator >> guessParameterType: aString [
 ]
 
 { #category : 'initialization' }
-MicroUMLGenerator >> initialize [
+MicroUMLClassDiagramGenerator >> initialize [
 
 	super initialize.
 	classNames := Set new.
