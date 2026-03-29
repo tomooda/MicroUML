@@ -117,24 +117,10 @@ To define class attributes or class methods, add `|` before the definition. In o
     |> #method2 ~ { #Integer } @ #String
 ```
 
-#### Class variable and class methods
-
-```st
-#AbstractSeries
-    $ ClassVar @ #Float
-    >+ #(static) % #findByName ~ {#String} @ #AbstractSeries
-```
-
 #### Relations
 
-- ` --|> ` defines subclass
-- ` ---<'comicalize'> ` composition
-
 ```st
-#AnimeSeries
-    --|> #AbstractSeries 
-    <'original'>---<'comicalize'> #ComicSeries 
-    <><'main'>---<'side stories'> #NovelSeries 
+"Inheritance"#Circle  --|> #Shape."Plain association with one role (left only)"#Employee  -- #Company    @ #employer. "left role = employer""Plain association with both roles + multiplicities"#Team  -- #Player    @ (#team -> #members)    %< '1';    %> '0..*'."Directed association (right) with right-only role"#Order  => #Customer    @ (#none -> #orders) "explicit right role"    %< '0..*'    %> '1'."Aggregation (undirected) with qualifier on the right end"#Library  <>-- #Book    @ (#library -> #holdings)    %< '1'    %> '0..*'."Composition (right) with association class"#Car  *=> #Wheel   @ (#car -> #wheels)    %< '1'    %> '4'    @= #Mounting."Dependency"#Client  --> #Service    @ 'uses at runtime'.
 ```
 
 #### Class sequences
@@ -142,101 +128,22 @@ To define class attributes or class methods, add `|` before the definition. In o
 We use `===` to link multiple class definitions. 
 
 ```st
+MU
+===
 #AbstractSeries 
-    + #name @ String 
-    * #numEpisodes @ Integer
+    - #name @ #String 
+    - #numEpisodes @ #Integer
 === 
 #NovelSeries 
     --|> #AbstractSeries
-    + #author @ String 
-    + #Publisher @ String 
-    >+ #read~{}
+    - #author @ #String 
+    - #publisher @ #String 
+    > #read
 ```
 
 ### Considerations 
 We decided to avoid to manipulate classes as the receiver in the class definition (`Object << #Point` and not `#Object << #Point`)
 This is why we extensively use Symbols. This gives regularity and writers do not have to know if the classes they refer exist or not. 
-
-
-
-
-## Example
-
-The following UML diagram is produced by executing (and not having a dedicated parser) 
-the following Pharo code snippet.
-
-
-![A simple UML based on MicroUML DSL](img/microUML.png)
-
-
-Here is the Pharo program that creates a metamodel that can be rendered as the previous figure.
-
-```st
-#AbstractSeries 
-    + #name @ String 
-    * #numEpisodes @ Integer
-=== 
-#NovelSeries 
-    --|> #AbstractSeries
-    + #author @ String 
-    + #Publisher @ String 
-    >+ #read~{}
-=== 
-#ComicSeries 
-    --|> #AbstractSeries 
-    + #toonAuthor @ String
-    * #storyAuthor @ String
-    >+ #print~{}
-=== 
-#AnimeSeries
-    --|> #AbstractSeries 
-    + #director @ String 
-    * #animators @ String
-    * #voiceActors @ String
-    >+ #play~{} <>---<'based on'> #ComicSeries
-=== 
-#ComicSeries ---<'original'> #NovelSeries 
-
-    extent: 600 @ 400
-```
-
-
-
-```st
-| uml builder |
-uml := 
-#(abstract) % #AbstractSeries 
-    + #name @ String 
-    - #(abstract) % #numEpisodes @ Integer
-    >+ #(static) % #findByName ~ {#String} @ #AbstractSeries
-=== 
-#NovelSeries 
-    --|> #AbstractSeries
-    + #author @ String 
-    * #Publisher @ String 
-    >+ #read~{}
-=== 
-#ComicSeries 
-    --|> #AbstractSeries 
-    + #toonAuthor @ String
-    * #storyAuthor @ String 
-    >+ #print~{} 
-=== 
-#AnimeSeries
-    --|> #AbstractSeries 
-    + #director @ String 
-    - #animators @ String
-    - #voiceActors @ String 
-    >+ #play~{} 
-    <'original'>---<'comicalize'> #ComicSeries 
-    <><'main'>---<'side stories'> #NovelSeries .
-    builder := MicroUMLRoassalBuilder new
-                   classDiagramNode: uml diagram;
-                   build.
-    builder
-        @ RSCanvasController;
-        open
-```
 
 
 ## Loading
