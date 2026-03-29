@@ -188,6 +188,15 @@ MicroUMLClassNode >> changeSuperclass [
 ]
 
 { #category : 'accessing' }
+MicroUMLClassNode >> children [
+
+	^ (OrderedCollection
+		withAll: self attributes)
+		addAll: self methods;
+		yourself
+]
+
+{ #category : 'accessing' }
 MicroUMLClassNode >> currentMember [
 
 	^ members ifNotEmpty: #last ifEmpty: [ nil ]
@@ -383,6 +392,13 @@ MicroUMLClassNode >> printMicroUMLOn: aStream [
 							space.
 						member printMicroUMLOn: aStream ]
 				separatedBy: [ aStream cr ] ]
+]
+
+{ #category : 'printing' }
+MicroUMLClassNode >> printOn: aStream [
+
+	super printOn: aStream.
+	aStream << $( << name << $)
 ]
 
 { #category : 'menu operations' }

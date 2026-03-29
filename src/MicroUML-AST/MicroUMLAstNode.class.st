@@ -23,6 +23,12 @@ MicroUMLAstNode >> application [
 	^ SpApplication defaultApplication
 ]
 
+{ #category : 'accessing' }
+MicroUMLAstNode >> children [
+
+	^ OrderedCollection empty
+]
+
 { #category : 'dialog' }
 MicroUMLAstNode >> confirm: aString [
 
@@ -42,6 +48,20 @@ MicroUMLAstNode >> confirm: aString title: anotherString [
 MicroUMLAstNode >> iconNamed: aSymbol [
 
 	^ self application iconNamed: aSymbol
+]
+
+{ #category : 'as yet unclassified' }
+MicroUMLAstNode >> inspectionAST: aBuilder [
+	<inspectorPresentationOrder: 35 title: 'AST'>
+
+	^ aBuilder newTree 
+		addStyle: 'stTree';
+		roots: { self };
+		children: [ :aNode |
+			aNode isMicroUMLAstNode
+				ifTrue: [ aNode children ]
+				ifFalse: [ #() ] ];
+		yourself
 ]
 
 { #category : 'testing' }

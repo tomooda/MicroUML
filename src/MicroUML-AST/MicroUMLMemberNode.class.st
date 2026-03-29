@@ -220,6 +220,13 @@ MicroUMLMemberNode >> pharoClass [
 	^ classNode ifNotNil: [ Smalltalk classNamed: classNode name ]
 ]
 
+{ #category : 'printing' }
+MicroUMLMemberNode >> printOn: aStream [
+
+	super printOn: aStream.
+	aStream << $( << name << $)
+]
+
 { #category : 'menu operations' }
 MicroUMLMemberNode >> remove [
 

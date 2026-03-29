@@ -91,6 +91,15 @@ MicroUMLClassDiagramNode >> astBuilderClass [
 ]
 
 { #category : 'accessing' }
+MicroUMLClassDiagramNode >> children [
+
+	^ (OrderedCollection
+		withAll: self classes)
+		addAll: self associations;
+		yourself
+]
+
+{ #category : 'accessing' }
 MicroUMLClassDiagramNode >> classAt: aSymbol [
 
 	^ self classAt: aSymbol ifAbsent: [ nil ]

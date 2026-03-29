@@ -165,6 +165,14 @@ MicroUMLAssociationNode >> changeRightMultiplicity [
 					self announceDiagramChange ] ]
 ]
 
+{ #category : 'accessing' }
+MicroUMLAssociationNode >> children [
+	
+	^ OrderedCollection
+		with: leftClass
+		with: rightClass
+]
+
 { #category : 'menus' }
 MicroUMLAssociationNode >> contextMenuOnLeft [
 
@@ -409,6 +417,7 @@ MicroUMLAssociationNode >> printMicroUMLLabelsOn: aStream [
 { #category : 'printing' }
 MicroUMLAssociationNode >> printMicroUMLLinkOn: aStream [
 
+	self halt.
 	self leftHead = #aggregation ifTrue: [ aStream nextPutAll: '<>' ].
 	self leftHead = #composition ifTrue: [ aStream nextPutAll: '*' ].
 	self rightHead ifNil: [ aStream nextPutAll: '-- ' ].
