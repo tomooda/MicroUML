@@ -18,6 +18,23 @@ MicroUML has been designed during ESUG 2025 at Gdansk with the following constra
 
 ### Syntax
 
+#### MicroUMLAstBuilder or MU
+
+To define a MicroUML diagram, we can use a special class called `MicroUMLAstBuilder` or its alias `MU`. This class understands a message `===` which can be used to define classes. Take a look at the following example. We will explain all elements in the following sections.
+
+```st
+uml := MicroUMLAstBuilder===#AbstractSeries % #abstract    --@ #TSearch    --@ #TArtifact    - #name @ String     - #numEpisodes @ Integer % #abstract % #private    |> #findByName ~#(String) @ #AbstractSeries=== #NovelSeries     --|> #AbstractSeries    - #author @ String     - #Publisher @ String     > #read~{}=== #ComicSeries     --|> #AbstractSeries     - #toonAuthor @ String    - #storyAuthor @ String     > #print~{} === #AnimeSeries    --|> #AbstractSeries     - #director @ String     - #animators @ String % #private    - #voiceActors @ String % #private    > #play~{}     <>-- #ComicSeries @ ('original' -> 'comicalize') %< '1' %> '0..*'    <>-- #NovelSeries @ ('main' ->'side stories') %< '1..*' %> '*'.
+```
+
+Each `===` followed by a symbol `#ClassName` defines a class. The result is an object of class `MicroUMLAstBuilder`. We can use a `diagram` message to build an actual AST of our UML diagram:
+
+```st
+uml diagram.
+```
+
+![AST in Pharo inspector](img/ast.png)
+
+
 #### Class definition
 Class definition starts with `#` and conceptually produces a UmlClassBox
 
@@ -89,7 +106,7 @@ The following UML diagram is produced by executing (and not having a dedicated p
 the following Pharo code snippet.
 
 
-![A simple UML based on MicroUML DSL](microUML.png)
+![A simple UML based on MicroUML DSL](img/microUML.png)
 
 
 Here is the Pharo program that creates a metamodel that can be rendered as the previous figure.
