@@ -417,13 +417,12 @@ MicroUMLAssociationNode >> printMicroUMLLabelsOn: aStream [
 { #category : 'printing' }
 MicroUMLAssociationNode >> printMicroUMLLinkOn: aStream [
 
-	self halt.
 	self leftHead = #aggregation ifTrue: [ aStream nextPutAll: '<>' ].
 	self leftHead = #composition ifTrue: [ aStream nextPutAll: '*' ].
-	self rightHead ifNil: [ aStream nextPutAll: '-- ' ].
 	self rightHead = #wedge ifTrue: [
-			self line = #solid ifTrue: [ aStream nextPutAll: '=> ' ].
-			self line = #dashed ifTrue: [ aStream nextPutAll: '--> ' ] ]
+			self line = #solid ifTrue: [ ^ aStream nextPutAll: '=> ' ].
+			self line = #dashed ifTrue: [ ^ aStream nextPutAll: '--> ' ] ].
+	aStream nextPutAll: '-- '
 ]
 
 { #category : 'printing' }
